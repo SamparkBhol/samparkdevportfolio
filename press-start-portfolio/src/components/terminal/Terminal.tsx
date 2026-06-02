@@ -1,0 +1,494 @@
+"use client";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { motion } from "motion/react";
+import { portfolio } from "@/content/portfolio";
+import { cn } from "@/lib/cn";
+
+/**
+ * A single printed line in the terminal output history.
+ * `kind` only drives color/styling — everything is plain text.
+ */
+type LineKind = "out" | "in" | "ok" | "warn" | "err" | "sys";
+interface Line {
+  id: number;
+  kind: LineKind;
+  text: string;
+}
+
+/** Which interactive mini-game (if any) is currently capturing input. */
+type Mode =
+  | { name: "shell" }
+  | { name: "guess"; secret: number; tries: number }
+  | { name: "rps"; rounds: number; wins: number; losses: number };
+
+const KIND_CLASS: Record<LineKind, string> = {
+  out: "text-pop-green",
+  in: "text-pop-cyan",
+  ok: "text-pop-green font-bold",
+  warn: "text-pop-yellow",
+  err: "text-pop-red",
+  sys: "text-pop-green/70",
+};
+
+const PROMPT = "guest@press-start:~$";
+
+const BANNER = [
+  " ____  ____  ____  ____  ____    ____  ____  ____  ____  ____ ",
+  "||P ||||R ||||E ||||S ||||S ||  ||S ||||T ||||A ||||R ||||T ||",
+  "||__||||__||||__||||__||||__||  ||__||||__||||__||||__||||__||",
+  "|/__\\||/__\\||/__\\||/__\\||/__\\|  |/__\\||/__\\||/__\\||/__\\||/__\\|",
+];
+
+const HELP = [
+  "AVAILABLE COMMANDS",
+  "  help        show this list",
+  "  about       who is player one?",
+  "  whoami      current session identity",
+  "  skills      list the skill tree",
+  "  projects    boss fights shipped",
+  "  experience  campaign log",
+  "  packages    open-source power-ups",
+  "  social      list portals to find me",
+  "  email       open a mailto: to player one",
+  "  banner      print the PRESS START banner",
+  "  play        list mini-games (try: play guess)",
+  "  clear       wipe the screen",
+  "",
+  "TIP: ArrowUp / ArrowDown cycle command history.",
+];
+
+let LINE_ID = 0;
+const nextId = () => ++LINE_ID;
+
+export function Terminal({ className }: { className?: string }) {
+  const { contact, profile, projects, experience, packages, skills } =
+    portfolio;
+
+  const [lines, setLines] = useState<Line[]>([]);
+  const [value, setValue] = useState("");
+  const [mode, setMode] = useState<Mode>({ name: "shell" });
+  const [cursorOn, setCursorOn] = useState(true);
+
+  // Command history (most-recent last) + a pointer for ArrowUp/ArrowDown.
+  const history = useRef<string[]>([]);
+  const histPos = useRef<number>(-1);
+
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  /** Append one or more lines to the output history. */
+  const print = useCallback((text: string | string[], kind: LineKind = "out") => {
+    const arr = Array.isArray(text) ? text : [text];
+    setLines((prev) => [
+      ...prev,
+      ...arr.map((t) => ({ id: nextId(), kind, text: t })),
+    ]);
+  }, []);
+
+  // Seed the welcome banner once on mount.
+  useEffect(() => {
+    setLines([
+      ...BANNER.map((t) => ({ id: nextId(), kind: "sys" as LineKind, text: t })),
+      { id: nextId(), kind: "out", text: "" },
+      {
+        id: nextId(),
+        kind: "out",
+        text: `Welcome, traveller. Booting ${profile.name}.term v1.0 ...`,
+      },
+      { id: nextId(), kind: "warn", text: "type 'help' to begin." },
+    ]);
+    // profile.name is from a static module; safe to omit but listed for lint.
+  }, [profile.name]);
+
+  // Blinking block cursor.
+  useEffect(() => {
+    const t = setInterval(() => setCursorOn((c) => !c), 530);
+    return () => clearInterval(t);
+  }, []);
+
+  // Auto-scroll to the newest line whenever output grows.
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
+  }, [lines]);
+
+  /** ---- Command handlers (shell mode) ---- */
+  const runShell = useCallback(
+    (raw: string) => {
+      const [cmd, ...rest] = raw.split(/\s+/);
+      const arg = (rest[0] ?? "").toLowerCase();
+      switch (cmd) {
+        case "help":
+          print(HELP, "out");
+          return;
+        case "banner":
+          print(BANNER, "sys");
+          print("INSERT COIN ▸ PRESS START", "warn");
+          return;
+        case "about":
+          print(portfolio.about.blurb, "out");
+          return;
+        case "whoami":
+          print(`${profile.handle} — ${profile.title}`, "ok");
+          print(`location: ${profile.location}`, "out");
+          print(profile.tagline, "out");
+          return;
+        case "skills": {
+          print("SKILL TREE", "ok");
+          skills.forEach((cat) => {
+            print(`  [${cat.name}]`, "warn");
+            cat.skills.forEach((s) => {
+              const filled = Math.round(s.level / 10);
+              const bar = "#".repeat(filled) + "-".repeat(10 - filled);
+              print(`    ${s.name.padEnd(16)} ${bar} ${s.level}`, "out");
+            });
+          });
+          return;
+        }
+        case "projects": {
+          print("BOSS FIGHTS (projects)", "ok");
+          projects.forEach((p) => {
+            print(`  ${p.name} [${p.difficulty}] HP:${p.hp} (${p.year})`, "warn");
+            print(`    ${p.tagline}`, "out");
+          });
+          return;
+        }
+        case "experience": {
+          print("CAMPAIGN LOG (experience)", "ok");
+          experience.forEach((e) => {
+            print(`  LV${e.level} ${e.role} @ ${e.org} (${e.period})`, "warn");
+            print(`    ${e.summary}`, "out");
+          });
+          return;
+        }
+        case "packages": {
+          print("POWER-UPS (npm packages)", "ok");
+          packages.forEach((pk) => {
+            print(`  ${pk.name}@${pk.version} — ${pk.weeklyDownloads.toLocaleString()}/wk`, "warn");
+            print(`    ${pk.description}  [${pk.installCmd}]`, "out");
+          });
+          return;
+        }
+        case "social":
+        case "socials": {
+          print("FIND ME (socials)", "ok");
+          contact.socials.forEach((s) => print(`  ${s.label.padEnd(10)} ${s.href}`, "out"));
+          return;
+        }
+        case "email": {
+          const mailto = `mailto:${contact.email}`;
+          print(`Opening ${mailto} ...`, "ok");
+          if (typeof window !== "undefined") window.location.href = mailto;
+          return;
+        }
+        case "play": {
+          if (!arg) {
+            print("MINI-GAMES", "ok");
+            print("  play guess   number guessing (1-100)", "out");
+            print("  play rps     rock / paper / scissors", "out");
+            print("Pick one, e.g. 'play guess'. Type 'quit' to leave a game.", "warn");
+            return;
+          }
+          if (arg === "guess") {
+            // Fresh secret per game — generated INSIDE the handler, never at module load.
+            const secret = Math.floor(Math.random() * 100) + 1;
+            setMode({ name: "guess", secret, tries: 0 });
+            print("NUMBER GUESS — I'm thinking of a number from 1 to 100.", "ok");
+            print("Type a guess and press Enter. 'quit' to give up.", "warn");
+            return;
+          }
+          if (arg === "rps") {
+            setMode({ name: "rps", rounds: 0, wins: 0, losses: 0 });
+            print("ROCK / PAPER / SCISSORS — first to type wins glory.", "ok");
+            print("Type rock, paper, or scissors. 'quit' to leave.", "warn");
+            return;
+          }
+          print(`no such game: ${arg} — try 'play'`, "err");
+          return;
+        }
+        case "clear":
+          setLines([]);
+          return;
+        default:
+          print(`command not found: ${cmd} — type 'help'`, "err");
+          return;
+      }
+    },
+    [
+      print,
+      profile.handle,
+      profile.title,
+      profile.location,
+      profile.tagline,
+      skills,
+      projects,
+      experience,
+      packages,
+      contact.socials,
+      contact.email,
+    ],
+  );
+
+  /** ---- Guess mode ---- */
+  const runGuess = useCallback(
+    (raw: string, m: Extract<Mode, { name: "guess" }>) => {
+      const n = Number.parseInt(raw, 10);
+      if (Number.isNaN(n)) {
+        print("that's not a number — type 1-100 or 'quit'", "warn");
+        return;
+      }
+      const tries = m.tries + 1;
+      if (n === m.secret) {
+        print(`★ CORRECT! ${m.secret} in ${tries} tries. GG.`, "ok");
+        print("Back to shell. Type 'play' to go again.", "sys");
+        setMode({ name: "shell" });
+        return;
+      }
+      if (n < m.secret) print(`${n} → too LOW. go higher. (try #${tries})`, "warn");
+      else print(`${n} → too HIGH. go lower. (try #${tries})`, "warn");
+      setMode({ ...m, tries });
+    },
+    [print],
+  );
+
+  /** ---- Rock / Paper / Scissors mode ---- */
+  const runRps = useCallback(
+    (raw: string, m: Extract<Mode, { name: "rps" }>) => {
+      const pick = raw.toLowerCase();
+      const choices = ["rock", "paper", "scissors"] as const;
+      if (!choices.includes(pick as (typeof choices)[number])) {
+        print("pick rock, paper, or scissors (or 'quit')", "warn");
+        return;
+      }
+      const cpu = choices[Math.floor(Math.random() * 3)];
+      const player = pick as (typeof choices)[number];
+      const beats: Record<(typeof choices)[number], (typeof choices)[number]> = {
+        rock: "scissors",
+        paper: "rock",
+        scissors: "paper",
+      };
+      const rounds = m.rounds + 1;
+      print(`you: ${player}   cpu: ${cpu}`, "in");
+      if (player === cpu) {
+        print("DRAW. go again.", "out");
+        setMode({ ...m, rounds });
+      } else if (beats[player] === cpu) {
+        const wins = m.wins + 1;
+        print(`YOU WIN this round! (record ${wins}-${m.losses})`, "ok");
+        setMode({ ...m, rounds, wins });
+      } else {
+        const losses = m.losses + 1;
+        print(`cpu wins this round. (record ${m.wins}-${losses})`, "err");
+        setMode({ ...m, rounds, losses });
+      }
+      print("again? type rock/paper/scissors, or 'quit'.", "sys");
+    },
+    [print],
+  );
+
+  /** Route a submitted command to the correct mode. */
+  const submit = useCallback(
+    (raw: string) => {
+      const trimmed = raw.trim();
+      // Echo the input line with the prompt for that CRT feel.
+      const label =
+        mode.name === "shell"
+          ? PROMPT
+          : mode.name === "guess"
+            ? "guess>"
+            : "rps>";
+      print(`${label} ${trimmed}`, "in");
+
+      if (trimmed === "") return; // typing nothing is a no-op
+
+      // Track history (skip duplicate of the previous entry).
+      const h = history.current;
+      if (h[h.length - 1] !== trimmed) h.push(trimmed);
+      histPos.current = h.length;
+
+      const lower = trimmed.toLowerCase();
+
+      // Universal escapes available in every mode.
+      if (lower === "clear") {
+        setLines([]);
+        return;
+      }
+      if (mode.name !== "shell" && (lower === "quit" || lower === "exit")) {
+        print("left the game. back to shell.", "sys");
+        setMode({ name: "shell" });
+        return;
+      }
+      if (mode.name === "shell" && (lower === "quit" || lower === "exit")) {
+        print("you're already in the shell. try 'help' or 'play'.", "warn");
+        return;
+      }
+
+      if (mode.name === "guess") {
+        runGuess(trimmed, mode);
+        return;
+      }
+      if (mode.name === "rps") {
+        runRps(trimmed, mode);
+        return;
+      }
+      runShell(lower);
+    },
+    [mode, print, runShell, runGuess, runRps],
+  );
+
+  const onKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        submit(value);
+        setValue("");
+        return;
+      }
+      if (e.key === "ArrowUp") {
+        e.preventDefault();
+        const h = history.current;
+        if (h.length === 0) return;
+        histPos.current = Math.max(0, histPos.current - 1);
+        setValue(h[histPos.current] ?? "");
+        return;
+      }
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        const h = history.current;
+        if (h.length === 0) return;
+        histPos.current = Math.min(h.length, histPos.current + 1);
+        setValue(h[histPos.current] ?? "");
+        return;
+      }
+    },
+    [submit, value],
+  );
+
+  const promptLabel = useMemo(() => {
+    if (mode.name === "guess") return "guess>";
+    if (mode.name === "rps") return "rps>";
+    return PROMPT;
+  }, [mode]);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.2 }}
+      transition={{ type: "spring", stiffness: 200, damping: 22 }}
+      className={cn(
+        "relative nb-border nb-shadow-lg bg-crt overflow-hidden",
+        className,
+      )}
+    >
+      {/* CRT title bar */}
+      <div className="flex items-center gap-2 border-b-[3px] border-ink bg-ink px-3 py-2">
+        <span aria-hidden className="flex gap-1.5">
+          <span className="h-3 w-3 rounded-full bg-pop-red nb-border" />
+          <span className="h-3 w-3 rounded-full bg-pop-yellow nb-border" />
+          <span className="h-3 w-3 rounded-full bg-pop-green nb-border" />
+        </span>
+        <span className="ml-1 font-pixel text-[9px] text-pop-green">
+          {profile.name.toLowerCase().replace(/\s+/g, "_")}.term
+        </span>
+        <span className="ml-auto font-pixel text-[8px] text-pop-cyan">
+          ◉ ONLINE
+        </span>
+      </div>
+
+      {/* Screen: output history + scanline overlay */}
+      <div
+        onClick={() => inputRef.current?.focus()}
+        className="relative"
+      >
+        {/* Decorative scanline + glow overlay (local to the screen) */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 z-10"
+          style={{
+            background:
+              "repeating-linear-gradient(to bottom, rgba(0,0,0,0) 0px, rgba(0,0,0,0) 2px, rgba(0,0,0,0.28) 3px, rgba(0,0,0,0.28) 3px)",
+            mixBlendMode: "multiply",
+          }}
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 z-10"
+          style={{
+            background:
+              "radial-gradient(120% 120% at 50% 0%, rgba(57,255,20,0.07), transparent 60%)",
+          }}
+        />
+
+        <div
+          ref={scrollRef}
+          role="log"
+          aria-live="polite"
+          aria-label="terminal output"
+          className="relative z-0 h-72 md:h-80 overflow-y-auto px-4 py-3 font-mono text-[12px] leading-relaxed crt-flicker"
+        >
+          {lines.map((l) => (
+            <pre
+              key={l.id}
+              className={cn(
+                "m-0 whitespace-pre-wrap break-words font-mono",
+                KIND_CLASS[l.kind],
+              )}
+            >
+              {l.text === "" ? " " : l.text}
+            </pre>
+          ))}
+        </div>
+      </div>
+
+      {/* Input row */}
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          submit(value);
+          setValue("");
+        }}
+        className="flex items-center gap-2 border-t-[3px] border-ink bg-crt px-4 py-3"
+      >
+        <span aria-hidden className="font-mono text-[12px] text-pop-cyan shrink-0">
+          {promptLabel}
+        </span>
+        <label htmlFor="terminal-input" className="sr-only">
+          terminal input
+        </label>
+        <div className="relative flex-1">
+          <input
+            id="terminal-input"
+            ref={inputRef}
+            type="text"
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            onKeyDown={onKeyDown}
+            aria-label="terminal input"
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="off"
+            spellCheck={false}
+            className="w-full bg-transparent font-mono text-[12px] text-pop-green caret-transparent placeholder:text-pop-green/40 focus:outline-none"
+            placeholder="type a command…"
+          />
+          {/* Blinking block cursor sits just after typed text. */}
+          <span
+            aria-hidden
+            className={cn(
+              "pointer-events-none absolute top-1/2 -translate-y-1/2 h-[14px] w-[8px] bg-pop-green transition-opacity",
+              cursorOn ? "opacity-90" : "opacity-0",
+            )}
+            style={{ left: `${value.length}ch` }}
+          />
+        </div>
+      </form>
+    </motion.div>
+  );
+}

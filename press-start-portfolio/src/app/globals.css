@@ -1,0 +1,82 @@
+@import "tailwindcss";
+
+/* ---- Design tokens (Tailwind v4 @theme) ---- */
+@theme {
+  --color-ink: #0a0a0a;
+  --color-paper: #fdf6e3;
+  --color-crt: #0b0b12;
+  --color-pop-red: #ff3b3b;
+  --color-pop-yellow: #ffd23f;
+  --color-pop-cyan: #00e5ff;
+  --color-pop-magenta: #ff4fd8;
+  --color-pop-green: #39ff14;
+
+  --font-pixel: var(--font-press-start), monospace;
+  --font-comic: var(--font-bungee), system-ui, sans-serif;
+  --font-bang: var(--font-bangers), system-ui, sans-serif;
+  --font-black: var(--font-blackletter), serif;
+  --font-body: var(--font-bricolage), system-ui, sans-serif;
+  --font-mono: var(--font-space-mono), monospace;
+
+  --shadow-hard: 4px 4px 0 0 var(--color-ink);
+  --shadow-hard-lg: 8px 8px 0 0 var(--color-ink);
+}
+
+/* ---- Base ---- */
+:root { color-scheme: dark; }
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background:
+    radial-gradient(60rem 60rem at 80% -10%, rgba(255, 79, 216, 0.12), transparent 60%),
+    radial-gradient(50rem 50rem at -10% 30%, rgba(0, 229, 255, 0.1), transparent 60%),
+    var(--color-crt);
+  color: var(--color-paper);
+  font-family: var(--font-body);
+  overflow-x: hidden;
+  cursor: none; /* custom pixel cursor; falls back below */
+}
+@media (pointer: coarse) { body { cursor: auto; } }
+.skip-link { position: absolute; left: -9999px; }
+.skip-link:focus { left: 1rem; top: 1rem; z-index: 100; }
+*:focus-visible { outline: 3px solid var(--color-pop-cyan); outline-offset: 2px; }
+
+/* ---- Neobrutalist utilities ---- */
+@utility nb-border { border: 3px solid var(--color-ink); }
+@utility nb-shadow { box-shadow: var(--shadow-hard); }
+@utility nb-shadow-lg { box-shadow: var(--shadow-hard-lg); }
+
+/* ---- Halftone / Ben-Day dots ---- */
+.halftone {
+  background-image: radial-gradient(var(--color-ink) 1.2px, transparent 1.3px);
+  background-size: 8px 8px;
+}
+
+/* ---- Film grain (atmosphere) ---- */
+.grain::before {
+  content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 55; opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ---- CRT scanlines overlay ---- */
+.scanlines::after {
+  content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 60;
+  background: repeating-linear-gradient(
+    to bottom, rgba(0,0,0,0) 0, rgba(0,0,0,0) 2px,
+    rgba(0,0,0,0.18) 3px, rgba(0,0,0,0.18) 3px);
+  mix-blend-mode: multiply;
+}
+.crt-flicker { animation: flicker 4s infinite steps(1); }
+@keyframes flicker { 0%,97%,100%{opacity:1} 98%{opacity:.85} 99%{opacity:.95} }
+
+/* ---- Anime speedlines ---- */
+.speedlines {
+  background: repeating-conic-gradient(from 0deg at 50% 50%,
+    rgba(0,0,0,0) 0deg 2deg, rgba(255,255,255,0.06) 2deg 3deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .crt-flicker { animation: none; }
+  *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+}
