@@ -76,22 +76,6 @@ When I'm not wrangling models, I'm building **games and creative-coding toys** �
 ![Godot](https://img.shields.io/badge/Godot-478CBF?logo=godotengine&logoColor=white&style=flat-square)
 
 ---
-
-## 📊 Battle Stats
-
-<div align="center">
-
-![Sampark's GitHub stats](https://github-readme-stats.vercel.app/api?username=SamparkBhol&show_icons=true&theme=synthwave&hide_border=true&bg_color=0a0a0a&title_color=FFD23F&icon_color=00E5FF&text_color=fdf6e3)
-![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=SamparkBhol&layout=compact&theme=synthwave&hide_border=true&bg_color=0a0a0a&title_color=FFD23F&text_color=fdf6e3)
-
-![Streak](https://streak-stats.demolab.com?user=SamparkBhol&theme=synthwave&hide_border=true&background=0a0a0a&ring=FF4FD8&fire=FF3B3B&currStreakLabel=FFD23F)
-
-![Trophies](https://github-profile-trophy.vercel.app/?username=SamparkBhol&theme=algolia&no-frame=true&column=7&margin-w=4)
-
-</div>
-
----
-
 ## 🔬 Selected Work
 
 - 📄 **Energy-Efficient Hybrid WSN Protocol** — *Elsevier Procedia Computer Science* (2025) · [paper ▸](https://www.sciencedirect.com/science/article/pii/S1877050925000596)
