@@ -1,52 +1,44 @@
-import type { Metadata } from "next";
-import { Press_Start_2P, Bungee, Bangers, Bricolage_Grotesque, Space_Mono, Pirata_One, Yuji_Mai } from "next/font/google";
-import { Providers } from "@/providers/Providers";
-import { Hud } from "@/components/hud/Hud";
-import { Scanlines } from "@/components/effects/Scanlines";
-import { PixelCursor } from "@/components/effects/PixelCursor";
-import { PixelBuddy } from "@/components/buddy/PixelBuddy";
-import { SmoothScroll } from "@/providers/SmoothScroll";
-import { CommandPalette } from "@/components/fx/CommandPalette";
-import { Codex } from "@/components/fx/Codex";
-import { portfolio } from "@/content/portfolio";
+import type { Metadata, Viewport } from "next";
+import { Dela_Gothic_One, Atkinson_Hyperlegible, Courier_Prime, Patrick_Hand, Bangers, Pirata_One } from "next/font/google";
+import { resume } from "@/content/resume";
+import { InkProvider } from "@/components/motion/InkProvider";
+import { Masthead } from "@/components/chrome/Masthead";
+import { ProgressStrip } from "@/components/chrome/ProgressStrip";
+import { RecruiterOverlay } from "@/components/chrome/RecruiterOverlay";
 import "./globals.css";
 
-const press = Press_Start_2P({ weight: "400", subsets: ["latin"], variable: "--font-press-start" });
-const bungee = Bungee({ weight: "400", subsets: ["latin"], variable: "--font-bungee" });
-const bangers = Bangers({ weight: "400", subsets: ["latin"], variable: "--font-bangers" });
-const bricolage = Bricolage_Grotesque({ subsets: ["latin"], variable: "--font-bricolage" });
-const spaceMono = Space_Mono({ weight: ["400", "700"], subsets: ["latin"], variable: "--font-space-mono" });
-const blackletter = Pirata_One({ weight: "400", subsets: ["latin"], variable: "--font-blackletter" });
-// Japanese brush calligraphy — decorative kanji/kana accents in the anime section.
-const brush = Yuji_Mai({ weight: "400", subsets: ["latin"], variable: "--font-brush" });
+const dela = Dela_Gothic_One({ weight: "400", subsets: ["latin"], variable: "--font-dela", display: "swap" });
+const atkinson = Atkinson_Hyperlegible({ weight: ["400", "700"], subsets: ["latin"], variable: "--font-atkinson", display: "swap" });
+const courier = Courier_Prime({ weight: ["400", "700"], subsets: ["latin"], variable: "--font-courier", display: "swap" });
+const patrick = Patrick_Hand({ weight: "400", subsets: ["latin"], variable: "--font-patrick", display: "swap", preload: false });
+const bangers = Bangers({ weight: "400", subsets: ["latin"], variable: "--font-bangers", display: "swap", preload: false });
+/* Blackletter for the Archives scroll titles only; self-hosted like the others, never render-blocking. */
+const pirata = Pirata_One({ weight: "400", subsets: ["latin"], variable: "--font-pirata", display: "swap", preload: false });
+
+const { profile } = resume;
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://press-start.vercel.app"),
-  title: `${portfolio.profile.name} — ${portfolio.profile.title}`,
-  description: portfolio.profile.tagline,
-  openGraph: {
-    title: `${portfolio.profile.name} — Portfolio`,
-    description: portfolio.profile.tagline, type: "website",
-  },
+  metadataBase: new URL(profile.siteUrl),
+  title: { default: `${profile.name} — ${profile.title}`, template: `%s · ${profile.name}` },
+  description: `${profile.classLine}. ${profile.employer}, ${profile.location}. ${profile.premise}`,
+  openGraph: { title: `${profile.name} — ${profile.title} · Issue No.${profile.issue.number}`, description: profile.premise, type: "website", url: "/" },
   twitter: { card: "summary_large_image" },
+  alternates: { canonical: "/" },
 };
+
+export const viewport: Viewport = { themeColor: "#0E0F14", width: "device-width", initialScale: 1, viewportFit: "cover" };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${press.variable} ${bungee.variable} ${bangers.variable} ${bricolage.variable} ${spaceMono.variable} ${blackletter.variable} ${brush.variable}`}>
-      <body className="grain">
-        <a href="#about" className="skip-link font-pixel text-xs">Skip to content</a>
-        <Providers>
-          <SmoothScroll>
-            <Hud />
-            {children}
-          </SmoothScroll>
-          <CommandPalette />
-          <Codex />
-          <Scanlines />
-          <PixelCursor />
-          <PixelBuddy />
-        </Providers>
+    <html lang="en" data-ink="cel" className={`${dela.variable} ${atkinson.variable} ${courier.variable} ${patrick.variable} ${bangers.variable} ${pirata.variable}`}>
+      <body>
+        <a href="#select" className="skip-link">Skip to the résumé</a>
+        <InkProvider>
+          <Masthead />
+          {children}
+          <ProgressStrip />
+          <RecruiterOverlay />
+        </InkProvider>
       </body>
     </html>
   );

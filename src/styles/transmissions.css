@@ -1,0 +1,90 @@
+/* ===========================================================================
+   08 / TRANSMISSIONS — the monitor wall
+   Tokens and primitives come from globals.css. Every colour here is a token or
+   a color-mix of tokens. The only things that move: the station strip (scroll-
+   driven), the LEDs (state), the game canvases (one shared rAF, gated), and the
+   card lift on hover.
+   ========================================================================= */
+
+.tx.chapter { scroll-margin-top: 56px; }
+.tx-plain { font-family: var(--font-body); font-size: 14px; color: var(--color-mute); }
+.tx-titlerow { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 22px; margin-bottom: 14px; }
+.tx-titlerow h2 { margin: 0; }
+.tx-intro { max-width: 56ch; margin: 0; font-size: clamp(16px, 1.4vw, 19px); }
+.tx-more { margin: clamp(24px, 3vw, 36px) 0 0; color: var(--color-mute); }
+.tx-more a { display: inline-flex; align-items: center; min-height: 44px; color: var(--color-yellow); text-decoration: none; }
+.tx-more a:hover { text-decoration: underline; }
+
+/* ---------- Station strip: drifts with the page scroll, never on its own ---------- */
+.tx-strip { overflow: hidden; margin: clamp(22px, 3vw, 36px) 0 0; padding: 8px 0; background: var(--color-ink); color: var(--color-yellow); border-block: 3px solid var(--color-paper); }
+.tx-strip-track { display: flex; width: max-content; white-space: nowrap; font-family: var(--font-display); font-size: clamp(18px, 2.4vw, 30px); line-height: 1.1; }
+.tx-strip-run { display: inline-flex; align-items: baseline; gap: 0.5em; padding-inline: 0.25em; }
+.tx-strip .kanji { font: inherit; letter-spacing: 0; color: inherit; }
+.tx-strip .kanji [lang="ja"] { font-family: system-ui, "Hiragino Sans", "Noto Sans JP", sans-serif; font-weight: 700; }
+.tx-strip .kanji [lang="ja"] + span { font-family: var(--font-meta); font-size: max(12px, 0.45em); letter-spacing: 0.1em; color: var(--color-paper); opacity: 1 !important; }
+.tx-strip-dot { color: var(--color-shu); }
+@supports (animation-timeline: view()) {
+  .tx-strip-track { animation: tx-drift linear both; animation-timeline: view(); animation-range: entry 0% exit 100%; will-change: transform; }
+  @keyframes tx-drift { from { transform: translateX(0); } to { transform: translateX(-25%); } }
+}
+@media (prefers-reduced-motion: reduce) { .tx-strip-track { animation: none !important; transform: none !important; will-change: auto; } }
+
+/* ---------- The wall ---------- */
+.tx-wall { list-style: none; margin: clamp(28px, 4vw, 44px) 0 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 28px 16px; }
+.tx-wall > li { min-width: 0; display: grid; }
+.tx-card { display: grid; grid-template-areas: "crt" "info"; grid-template-rows: auto 1fr; justify-items: center; min-height: 100%; }
+.tx-card:hover .crt-bezel, .tx-card:focus-within .crt-bezel { transform: translateY(-3px); }
+
+/* ---------- The CRT set ---------- */
+.crt { grid-area: crt; position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; width: 100%; }
+.crt-bezel { background: var(--color-line); border: 3px solid var(--color-ink); border-radius: 14px; padding: 5px 5px 5px; box-shadow: 4px 4px 0 var(--color-ink); transition: transform 0.15s; }
+.crt-screen { position: relative; background: var(--color-night); border-radius: 9px / 7px; overflow: hidden; line-height: 0; box-shadow: inset 0 0 0 2px var(--color-ink), inset 0 0 18px color-mix(in srgb, var(--color-ink) 70%, transparent); }
+.crt canvas { display: block; width: 192px; height: 128px; image-rendering: pixelated; image-rendering: crisp-edges; touch-action: manipulation; cursor: pointer; border-radius: 9px / 7px; }
+.crt canvas:focus-visible { outline: 3px solid var(--color-yellow); outline-offset: -4px; }
+.crt-scan { position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(180deg, transparent 0 2px, color-mix(in srgb, var(--color-night) 45%, transparent) 2px 3px); }
+.crt-over { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); padding: 3px 8px; background: var(--color-shu-deep); color: #fff; font-family: var(--font-display); font-size: 14px; line-height: 1.2; letter-spacing: 0.04em; white-space: nowrap; border: 2px solid var(--color-ink); }
+.crt-panel { display: flex; align-items: center; gap: 6px; padding: 6px 2px 0 4px; }
+.crt-led { width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--color-ink); background: var(--color-night); flex: none; transition: background-color 0.2s, box-shadow 0.2s; }
+.crt[data-live="demo"] .crt-led { background: var(--color-yellow); box-shadow: 0 0 6px var(--color-yellow); }
+.crt[data-live="play"] .crt-led { background: var(--color-shu); box-shadow: 0 0 6px var(--color-shu); }
+.crt-knob { width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--color-ink); background: var(--color-tone); flex: none; }
+.crt-knob::after { content: ""; display: block; width: 2px; height: 5px; margin: 0 auto; background: var(--color-ink); }
+.crt-play { margin-left: auto; min-height: 44px; padding-inline: 12px; }
+.crt-play[aria-pressed="true"] { background: var(--color-yellow); }
+.crt-status { display: flex; flex-wrap: wrap; justify-content: center; gap: 2px 12px; margin: 10px 0 0; color: var(--color-paper); text-align: center; }
+.crt-score { color: var(--color-yellow); }
+.crt-help { margin: 4px 0 0; color: var(--color-mute); text-transform: lowercase; letter-spacing: 0.06em; }
+
+/* ---------- The programme card under the set ---------- */
+.tx-info { grid-area: info; width: 100%; margin-top: 12px; padding: 12px 12px 14px; display: flex; flex-direction: column; gap: 8px; font-size: 14px; line-height: 1.4; }
+.tx-ch { margin: 0; display: flex; align-items: baseline; justify-content: space-between; gap: 8px; border-bottom: 2px solid var(--color-ink); padding-bottom: 6px; }
+.tx-ch-n { font-size: 22px; color: var(--color-shu); }
+.tx-ch-kind { color: #6A665E; }
+.tx-title { margin: 0; font-size: 15px; font-weight: 700; line-height: 1.3; }
+.tx-title a { color: var(--color-ink); text-decoration: none; border-bottom: 2px solid transparent; }
+.tx-title a:hover, .tx-title a:focus-visible { border-bottom-color: var(--color-shu); }
+.tx-meta { margin: 0; display: flex; flex-wrap: wrap; gap: 4px 8px; color: #6A665E; }
+.tx-tags { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px; }
+.tx-chip { font-family: var(--font-meta); font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; border: 2px solid var(--color-ink); padding: 0 6px; line-height: 1.6; white-space: nowrap; }
+.tx-read { margin-top: auto; align-self: flex-start; min-height: 44px; }
+
+/* ---------- Tablet: two columns, the set beside its card ---------- */
+@media (max-width: 1199px) {
+  .tx-wall { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 26px 24px; }
+  .tx-card { grid-template-columns: auto minmax(0, 1fr); grid-template-rows: 1fr; grid-template-areas: "crt info"; align-items: start; justify-items: stretch; column-gap: 14px; }
+  .crt { width: auto; align-items: flex-start; }
+  .crt-status { justify-content: flex-start; text-align: left; }
+  .tx-info { margin-top: 0; }
+}
+/* ---------- Phone: one column, the set on top at three pixels per pixel ---------- */
+@media (max-width: 799px) {
+  .tx-wall { grid-template-columns: 1fr; gap: 32px; }
+  .tx-card { grid-template-columns: 1fr; grid-template-rows: auto 1fr; grid-template-areas: "crt" "info"; justify-items: center; }
+  .crt { width: 100%; align-items: center; }
+  .crt canvas { width: 288px; height: 192px; }
+  .crt-status { justify-content: center; text-align: center; }
+  .tx-info { margin-top: 12px; }
+  .tx-title { font-size: 16px; }
+  .tx-more a { display: flex; }
+}
+@media (max-width: 340px) { .crt canvas { width: 192px; height: 128px; } }

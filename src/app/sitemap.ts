@@ -1,9 +1,10 @@
 import type { MetadataRoute } from "next";
-import { portfolio } from "@/content/portfolio";
-const base = "https://press-start.vercel.app";
+import { resume } from "@/content/resume";
+export const dynamic = "force-static";
 export default function sitemap(): MetadataRoute.Sitemap {
+  const base = resume.profile.siteUrl;
   return [
-    { url: base, priority: 1 },
-    ...portfolio.blogs.map((b) => ({ url: `${base}/blog/${b.slug}`, priority: 0.6 })),
+    { url: `${base}/`, lastModified: new Date("2026-09-17"), changeFrequency: "monthly", priority: 1 },
+    { url: `${base}/resume/`, lastModified: new Date("2026-09-17"), changeFrequency: "monthly", priority: 0.8 },
   ];
 }

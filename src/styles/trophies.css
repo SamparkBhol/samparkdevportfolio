@@ -1,0 +1,153 @@
+/* ============================================================================
+   10 / TROPHY ROOM · 実績 jisseki · Certifications.
+   Owns .tr-*, .atv-* (the anime TV) and .medal-*. The dagger cursor is the
+   site cursor's shape in this room; it lives in cursor.css.
+   Tokens and primitives come from globals.css. Nothing here loops: the scanline
+   is a static texture, the kira burst and the blip are one-shot on a manual
+   channel change, the knob turns only under a hand or a key.
+   ========================================================================== */
+
+.tr { scroll-margin-top: 60px; background-color: var(--color-night); background-image: radial-gradient(rgba(138, 135, 130, 0.16) 0.8px, transparent 1.1px); background-size: 9px 9px; }
+.tr > .wrap { width: 100%; min-width: 0; max-width: min(1180px, 100%); }
+.tr-head { flex-direction: column; align-items: flex-start; gap: 6px; }
+.tr-head-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; }
+.tr-plain { color: var(--color-paper); opacity: 0.75; }
+.tr-plain::before { content: "·"; margin-right: 14px; }
+.tr-title { margin: 0; }
+.tr-lede { margin: 8px 0 0; max-width: 52ch; color: var(--color-paper); font-size: clamp(15px, 1.3vw, 17px); line-height: 1.45; }
+
+.tr-grid { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(300px, 1fr); gap: clamp(24px, 3.5vw, 44px); align-items: start; }
+.tr-side { display: flex; flex-direction: column; gap: clamp(20px, 3vw, 32px); min-width: 0; }
+
+/* ---------- The anime TV ---------- */
+.atv { position: relative; min-width: 0; outline: none; }
+.atv:focus-visible { outline: 3px solid var(--color-yellow); outline-offset: 8px; }
+.atv-set { display: grid; grid-template-columns: minmax(0, 1fr) 156px; gap: 14px; padding: clamp(12px, 1.6vw, 18px); border-radius: 18px; background: var(--color-line); color: var(--color-paper); }
+.atv-screen-frame { min-width: 0; padding: 10px 10px 8px; border-radius: 14px; background: var(--color-ink); }
+.atv-screen {
+  position: relative; overflow: hidden; min-height: clamp(300px, 28vw, 380px);
+  padding: clamp(16px, 2.4vw, 28px) clamp(18px, 3vw, 34px);
+  border: 2px solid rgba(243, 241, 235, 0.55); border-radius: 26px / 20px; background: var(--color-night);
+  box-shadow: inset 0 0 70px rgba(0, 0, 0, 0.7);
+  display: flex; flex-direction: column;
+}
+.atv-scan { position: absolute; inset: 0; background: repeating-linear-gradient(180deg, var(--color-paper) 0 1px, transparent 1px 4px); opacity: 0.1; pointer-events: none; }
+.atv-card { position: relative; z-index: 1; display: flex; flex-direction: column; flex: 1; min-height: 0; }
+.atv-card-top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.atv-ch { margin: 0; color: var(--color-mute); }
+.atv-onair { margin: 0; display: inline-flex; align-items: center; gap: 6px; color: var(--color-shu); }
+.atv-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--color-shu); }
+.atv-ep { margin: 10px 0 0; font-size: clamp(44px, 6vw, 78px); color: var(--color-yellow); -webkit-text-stroke: 1px var(--color-ink); paint-order: stroke fill; text-shadow: 4px 4px 0 var(--color-ink); }
+.atv-title { margin: 8px 0 0; max-width: 24ch; font-size: clamp(18px, 2vw, 27px); font-weight: 700; line-height: 1.15; text-wrap: balance; padding-right: 64px; }
+.atv-card-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin-top: auto; padding-top: 16px; }
+.atv-meta { margin: 0; color: var(--color-yellow); }
+.atv-verify { min-height: 44px; }
+.atv-card-medal { position: absolute; right: 0; top: 50%; transform: translateY(-46%); }
+.atv-plate { margin: 8px 0 0; text-align: center; color: var(--color-mute); }
+
+/* ---------- Kira: one-shot sparkles and a static blip on a manual channel change ---------- */
+.atv-kira { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
+.atv-star { position: absolute; transform: translate(-50%, -50%) scale(0); animation: atv-kira 500ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.atv-star path { fill: var(--color-yellow); stroke: var(--color-ink); stroke-width: 1.5; stroke-linejoin: round; }
+@keyframes atv-kira {
+  0% { transform: translate(-50%, -50%) scale(0); opacity: 1; }
+  40% { transform: translate(calc(-50% + var(--dx) * 0.5), calc(-50% + var(--dy) * 0.5)) scale(1.15) rotate(20deg); opacity: 1; }
+  100% { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(0) rotate(45deg); opacity: 0; }
+}
+.atv-blip { position: absolute; inset: 0; z-index: 2; pointer-events: none; background: repeating-linear-gradient(0deg, rgba(243, 241, 235, 0.5) 0 2px, transparent 2px 7px); animation: atv-blip 180ms steps(3, end) both; }
+@keyframes atv-blip { from { opacity: 0.9; transform: translateY(-8px); } to { opacity: 0; transform: translateY(8px); } }
+
+/* ---------- The deck: knob, buttons, select ---------- */
+.atv-deck { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 4px 0; min-width: 0; }
+.atv-knob-wrap { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.atv-knob { display: grid; place-items: center; width: 100px; height: 100px; padding: 0; border: 0; border-radius: 50%; background: transparent; color: inherit; cursor: grab; touch-action: pan-y; }
+.atv-knob[data-live] { cursor: grabbing; }
+.atv-knob:focus-visible { outline: 3px solid var(--color-yellow); outline-offset: 2px; }
+.atv-knob svg { overflow: visible; }
+.atv-tick { stroke: var(--color-paper); stroke-width: 3; stroke-linecap: round; opacity: 0.45; }
+.atv-tick.is-on { stroke: var(--color-yellow); opacity: 1; }
+.atv-knob-rot { transform: rotate(var(--a, 0deg)); transform-origin: 50px 50px; transition: transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.atv-knob[data-live] .atv-knob-rot { transition: none; }
+.atv-knob-face { fill: var(--color-ink); stroke: var(--color-paper); stroke-width: 3; }
+.atv-knob-grip { fill: var(--color-line); stroke: var(--color-paper); stroke-width: 2.5; stroke-dasharray: 3 5; }
+.atv-knob-mark { fill: var(--color-yellow); stroke: var(--color-ink); stroke-width: 1.5; }
+.atv-knob-label { color: var(--color-mute); }
+.atv-btns { display: grid; grid-template-columns: 1fr; gap: 8px; width: 100%; }
+.atv-btns .btn { justify-content: center; min-height: 44px; }
+.atv-select { width: 100%; min-height: 44px; padding: 8px 10px; border: 3px solid var(--color-ink); background: var(--color-paper); color: var(--color-ink); font-family: var(--font-meta); font-weight: 700; font-size: 13px; letter-spacing: 0.04em; cursor: pointer; text-overflow: ellipsis; }
+.atv-help { margin: 0; text-align: center; color: var(--color-mute); }
+.atv-help span { display: block; }
+.atv-help b { color: var(--color-yellow); }
+.atv-legs { display: flex; justify-content: space-between; width: 58%; margin: 0 auto; }
+.atv-legs span { width: 20px; height: 22px; border: 3px solid var(--color-ink); border-top: 0; background: var(--color-line); }
+.atv-legs span:first-child { transform: skewX(10deg); }
+.atv-legs span:last-child { transform: skewX(-10deg); }
+
+/* ---------- Episode guide ---------- */
+.tr-guide { padding: 12px 14px 14px; }
+.tr-guide-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px 16px; flex-wrap: wrap; }
+.tr-guide-note { color: #6A665E; }
+.tr-eps { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.tr-ep {
+  display: grid; grid-template-columns: max-content minmax(0, 1fr) 16px; gap: 12px; align-items: center; width: 100%; min-height: 48px; padding: 8px 10px;
+  border: 2px solid var(--color-ink); background: var(--color-paper); color: var(--color-ink); text-align: left; cursor: pointer; box-shadow: 2px 2px 0 var(--color-ink);
+  transition: transform 0.05s, box-shadow 0.05s, background-color 0.1s;
+}
+.tr-ep:hover { background: #fff; }
+.tr-ep.is-on { background: var(--color-yellow); transform: translate(1px, 1px); box-shadow: 1px 1px 0 var(--color-ink); }
+.tr-ep-n { font-family: var(--font-display); font-size: 14px; color: var(--color-shu); }
+.tr-ep-body { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.tr-ep-t { font-weight: 700; font-size: 14px; line-height: 1.2; }
+.tr-ep-m { color: #6A665E; font-size: 12px; }
+.tr-ep-mark { color: var(--color-shu); font-size: 12px; }
+
+/* ---------- The medal rail ---------- */
+.tr-rail { position: relative; display: flex; justify-content: space-between; gap: 6px; padding: 18px 6px 0; border-top: 3px solid var(--color-paper); }
+.tr-medal { position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 56px; padding: 0 0 4px; border: 0; background: transparent; color: var(--color-paper); cursor: pointer; transition: transform 0.12s; }
+.tr-medal:hover { transform: translateY(3px); }
+.tr-medal.is-on { transform: translateY(6px); }
+.tr-medal:focus-visible { outline: 3px solid var(--color-yellow); outline-offset: 4px; }
+.tr-nail { position: absolute; top: -22px; width: 10px; height: 10px; border-radius: 50%; background: var(--color-ink); border: 2px solid var(--color-paper); }
+.tr-medal-l { color: var(--color-mute); }
+.tr-medal.is-on .tr-medal-l { color: var(--color-yellow); }
+
+.medal { display: block; overflow: visible; }
+.medal-tail { fill: var(--color-shu); stroke: var(--color-ink); stroke-width: 3; stroke-linejoin: round; }
+.medal-tail-r { fill: var(--color-shu-deep); }
+.medal-loop { fill: var(--color-ink); stroke: var(--color-ink); stroke-width: 2; }
+.medal-disc { fill: var(--color-paper); stroke: var(--color-ink); stroke-width: 3; }
+.medal.is-on .medal-disc { fill: var(--color-yellow); }
+.medal-ring { fill: none; stroke: var(--color-ink); stroke-width: 2; stroke-dasharray: 3 3; }
+.medal-letter { font-family: var(--font-display); font-size: 24px; fill: var(--color-ink); }
+
+/* ---------- Tablet ---------- */
+@media (max-width: 1024px) {
+  .tr-grid { grid-template-columns: minmax(0, 1.3fr) minmax(280px, 1fr); }
+  .atv-set { grid-template-columns: minmax(0, 1fr) 140px; }
+  .atv-screen { min-height: 300px; }
+}
+
+/* ---------- Phone ---------- */
+@media (max-width: 860px) {
+  .tr-grid { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 720px) {
+  .atv-set { grid-template-columns: minmax(0, 1fr); gap: 12px; border-radius: 14px; }
+  .atv-screen { min-height: 280px; padding: 16px 16px 14px; border-radius: 18px / 14px; }
+  .atv-title { padding-right: 0; }
+  .atv-card-medal { display: none; }
+  .atv-deck { display: grid; grid-template-columns: 100px minmax(0, 1fr); grid-template-areas: "knob btns" "select select" "help help"; gap: 10px 12px; align-items: center; }
+  .atv-knob-wrap { grid-area: knob; }
+  .atv-btns { grid-area: btns; }
+  .atv-select { grid-area: select; }
+  .atv-help { grid-area: help; }
+  .atv-legs { width: 50%; }
+  .tr-rail { gap: 2px; padding-inline: 0; }
+  .tr-medal { min-width: 0; flex: 1; }
+  .tr-medal .medal { width: 48px; height: 63px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .atv-kira, .atv-blip { display: none; }
+  .atv-knob-rot, .tr-ep, .tr-medal { transition: none; }
+}

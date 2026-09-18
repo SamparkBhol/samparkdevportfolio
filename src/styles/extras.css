@@ -1,0 +1,141 @@
+/* ============================================================================
+   Task 9: Extras (04) and the Back cover (05).
+   Uses only the tokens and primitives from globals.css. No 3D objects here, so
+   overflow/opacity are safe. Nothing moves without input except the strip,
+   which is driven by the page scroll itself.
+   ========================================================================== */
+
+/* ---------- Chapter head shared by both sections ---------- */
+.x-extras, .x-continue { scroll-margin-top: 60px; } /* land below the sticky masthead on deep links */
+.x-extras > .wrap, .x-continue > .wrap { width: 100%; min-width: 0; max-width: min(1180px, 100%); } /* never wider than the section, whatever the content's min-content */
+.x-head { align-items: flex-end; }
+.x-head .x-eyebrow { flex: 0 0 100%; }
+.x-head .chapter-title { margin: 0; }
+.x-head-side { display: flex; flex-direction: column; gap: 4px; padding-bottom: 6px; }
+.x-plain { font-family: var(--font-body); font-size: 14px; color: var(--color-paper); opacity: 0.8; }
+
+/* ---------- Extras: blocks ---------- */
+.x-block { margin-top: clamp(40px, 6vw, 72px); }
+.x-block-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 20px; margin-bottom: 18px; }
+.x-block-title { margin: 0; font-family: var(--font-display); font-weight: 400; font-size: clamp(24px, 3.2vw, 36px); line-height: 1; color: var(--color-paper); -webkit-text-stroke: 1px var(--color-ink); paint-order: stroke fill; text-shadow: 3px 3px 0 var(--color-ink); }
+.x-block-note { color: var(--color-mute); }
+.x-block-note a { color: var(--color-yellow); text-decoration: none; }
+.x-block-note a:hover { text-decoration: underline; }
+
+/* ---------- Bilingual strip ----------
+   With CSS scroll-driven animations: sticky at the middle of the viewport, drifting right-to-left as
+   the section scrolls (view timeline on the section). Without them, and under reduced motion: a static
+   centred line in the flow between the chapter head and the blocks, so it never covers anything. */
+.bstrip { position: static; z-index: 3; pointer-events: none; text-align: center; padding: 0 16px 8px; }
+.bstrip-inner {
+  display: block; white-space: normal;
+  font-family: var(--font-display); font-size: clamp(20px, 3vw, 40px); line-height: 1.1;
+  color: var(--color-paper); -webkit-text-stroke: 1.5px var(--color-ink); paint-order: stroke fill; text-shadow: 4px 4px 0 var(--color-ink);
+}
+.bstrip .kanji { font-family: inherit; font-size: inherit; letter-spacing: 0; color: inherit; }
+.bstrip .kanji [lang="ja"] { font-family: system-ui, "Hiragino Sans", "Noto Sans JP", "IPAGothic", sans-serif; font-weight: 700; }
+.bstrip .kanji [lang="ja"] + span { font-family: var(--font-meta); font-size: max(12px, 0.42em); letter-spacing: 0.1em; text-transform: lowercase; color: var(--color-yellow); -webkit-text-stroke: 0; text-shadow: 1px 1px 0 var(--color-ink), -1px -1px 0 var(--color-ink), 1px -1px 0 var(--color-ink), -1px 1px 0 var(--color-ink); opacity: 1 !important; }
+.bstrip-dot { display: inline-block; margin-inline: 0.5em; color: var(--color-yellow); }
+@supports (animation-timeline: scroll()) {
+  .x-extras { view-timeline: --extras block; }
+  .bstrip { position: sticky; top: 50%; height: 0; padding: 0; }
+  .bstrip-inner { position: absolute; left: 0; top: 0; white-space: nowrap; display: inline-flex; align-items: baseline; animation: bstrip-drift linear both; animation-timeline: --extras; animation-range: 10% 90%; }
+  @keyframes bstrip-drift { from { transform: translate(100vw, -50%); } to { transform: translate(-100%, -50%); } }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bstrip { position: static !important; height: auto !important; padding: 0 16px 8px !important; }
+  .bstrip-inner { position: static !important; animation: none !important; transform: none !important; white-space: normal !important; display: block !important; }
+}
+
+/* ---------- Papers ---------- */
+.x-papers { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 22px; }
+.x-paper { display: flex; flex-direction: column; }
+.x-paper-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+.x-status { display: inline-block; font-family: var(--font-meta); font-weight: 700; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; border: 2px solid var(--color-ink); padding: 1px 8px; color: var(--color-ink); white-space: nowrap; }
+.x-status-review { border-color: var(--color-shu); color: var(--color-shu); transform: rotate(-3deg); }
+.x-paper-title { margin: 4px 0 8px; font-family: var(--font-display); font-weight: 400; font-size: clamp(16px, 1.5vw, 19px); line-height: 1.15; }
+.x-paper-meta { margin: 0 0 10px; color: #6A665E; }
+.x-authors { margin: 0 0 12px; font-size: 14px; line-height: 1.5; }
+.x-authors b { background: var(--color-yellow); padding: 0 3px; }
+.x-paper-links { margin-top: auto; display: flex; flex-wrap: wrap; gap: 8px 16px; font-family: var(--font-meta); font-weight: 700; font-size: 13px; }
+.x-paper-links a { color: var(--color-shu); text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 3px; word-break: break-all; }
+.x-paper-links a:hover { background: var(--color-yellow); }
+
+/* ---------- Posts ---------- */
+.x-posts-panel { padding: 6px 18px 10px; }
+.x-posts { list-style: none; margin: 0; padding: 0; }
+.x-posts li { display: grid; grid-template-columns: 96px minmax(0, 1fr) max-content max-content; grid-template-areas: "date title words tags"; gap: 6px 18px; align-items: baseline; padding: 12px 0; border-top: 1px solid rgba(20, 18, 16, 0.25); }
+.x-posts li:first-child { border-top: 0; }
+.x-date { grid-area: date; font-family: var(--font-meta); font-weight: 700; font-size: 13px; color: #6A665E; white-space: nowrap; }
+.x-post-title { grid-area: title; font-size: 15px; font-weight: 700; line-height: 1.35; color: var(--color-ink); text-decoration: none; border-bottom: 2px solid transparent; }
+.x-post-title:hover, .x-post-title:focus-visible { border-bottom-color: var(--color-shu); }
+.x-words { grid-area: words; font-family: var(--font-meta); font-size: 12px; color: #6A665E; white-space: nowrap; }
+.x-tags { grid-area: tags; display: flex; flex-wrap: wrap; gap: 4px; }
+.x-chip { font-family: var(--font-meta); font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; border: 1.5px solid var(--color-ink); padding: 0 6px; line-height: 1.5; white-space: nowrap; }
+@media (max-width: 720px) {
+  .x-posts li { grid-template-columns: 1fr max-content; grid-template-areas: "date words" "title title" "tags tags"; gap: 4px 12px; }
+  .x-posts-panel { padding: 4px 14px 8px; }
+  /* Touch: every link a finger can hit (>= 44px tall). */
+  .x-post-title { display: flex; align-items: center; min-height: 44px; }
+  .x-paper-links a, .x-block-note a, .bc-mirror a { display: inline-flex; align-items: center; min-height: 44px; }
+}
+
+/* ---------- Anime TV: the certifications as episodes you dial by hand ---------- */
+.tv { position: relative; max-width: 840px; margin-inline: auto; background: var(--color-line); color: var(--color-paper); padding: clamp(12px, 2.4vw, 20px); }
+.tv:focus-visible { outline: 3px solid var(--color-yellow); outline-offset: 6px; }
+.tv-screen { position: relative; overflow: hidden; background: var(--color-night); border: 2px solid var(--color-paper); border-radius: 18px / 14px; padding: clamp(18px, 4vw, 36px) clamp(18px, 5vw, 48px); min-height: clamp(240px, 32vw, 340px); display: flex; flex-direction: column; justify-content: center; box-shadow: inset 0 0 70px rgba(0, 0, 0, 0.6); }
+.tv-scan { position: absolute; inset: 0; background: repeating-linear-gradient(180deg, var(--color-paper) 0 1px, transparent 1px 4px); opacity: 0.1; pointer-events: none; }
+.tv-card { position: relative; }
+.tv-ch { margin: 0 0 10px; color: var(--color-mute); }
+.tv-ep { margin: 0; font-family: var(--font-display); font-weight: 400; font-size: clamp(40px, 6vw, 68px); line-height: 1; color: var(--color-yellow); -webkit-text-stroke: 1px var(--color-ink); paint-order: stroke fill; text-shadow: 4px 4px 0 var(--color-ink); }
+.tv-title { margin: 10px 0 6px; font-size: clamp(18px, 2.4vw, 28px); font-weight: 700; line-height: 1.15; text-wrap: balance; }
+.tv-meta { margin: 0 0 16px; color: var(--color-yellow); }
+.tv-verify { min-height: 44px; }
+.tv-panel { display: grid; grid-template-columns: max-content minmax(0, 1fr) max-content; grid-template-areas: "prev select next" "help help help"; gap: 10px 12px; align-items: center; margin-top: 14px; }
+.tv-panel .btn { min-height: 44px; }
+.tv-prev { grid-area: prev; }
+.tv-next { grid-area: next; }
+.tv-select { grid-area: select; width: 100%; min-height: 44px; font-family: var(--font-meta); font-weight: 700; font-size: 13px; letter-spacing: 0.04em; background: var(--color-paper); color: var(--color-ink); border: 3px solid var(--color-ink); padding: 8px 10px; cursor: pointer; text-overflow: ellipsis; }
+.tv-help { grid-area: help; margin: 0; color: var(--color-mute); }
+.tv-help b { color: var(--color-yellow); }
+@media (max-width: 720px) {
+  .tv-panel { grid-template-columns: 1fr 1fr; grid-template-areas: "select select" "prev next" "help help"; }
+  .tv-panel .btn { justify-content: center; }
+}
+
+/* ---------- Back cover ---------- */
+.x-continue { min-height: 100vh; min-height: 100svh; display: flex; flex-direction: column; justify-content: center; padding-bottom: calc(clamp(56px, 8vw, 96px) + 72px); } /* the colophon clears the fixed progress strip at the page's end */
+@media (max-width: 720px) { .x-continue { padding-bottom: clamp(56px, 8vw, 96px); } } /* the phone strip is a bottom bar; body already pads for it */
+.bc-grid { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: clamp(28px, 5vw, 64px); align-items: start; }
+/* Dela Gothic sets CONTINUE? at ~7.8 em wide. 11vw capped at 140px keeps it on one line inside the 1100px wrap at every width. */
+.bc-title { margin: 0 0 clamp(20px, 3vw, 32px); font-size: clamp(56px, 11vw, 140px); color: var(--color-paper); white-space: nowrap; }
+.bc-btns { display: grid; gap: 14px; max-width: 520px; }
+.bc-btns .btn { justify-content: space-between; min-height: 52px; padding: 14px 18px; font-size: 15px; }
+.bc-btns .btn::after { content: "→"; font-weight: 400; }
+.bc-mail { text-transform: none; word-break: break-all; }
+.bc-mirror { margin: 0; color: var(--color-mute); }
+.bc-mirror a { color: var(--color-yellow); text-decoration: none; }
+.bc-mirror a:hover { text-decoration: underline; }
+.bc-side { display: flex; flex-direction: column; gap: clamp(20px, 3vw, 32px); }
+.bc-console { border: 2px solid var(--color-paper); padding: 16px 18px; }
+.bc-console > .mono-label { margin: 0 0 12px; color: var(--color-yellow); }
+.bc-console dd { color: var(--color-paper); }
+.bc-note { max-width: 380px; padding: 14px 18px; transform: rotate(-2deg); font-size: 14px; line-height: 1.45; }
+.bc-note-stop { display: block; font-family: var(--font-display); font-size: 22px; line-height: 1; color: var(--color-shu); margin-bottom: 6px; }
+.bc-note p { margin: 0; }
+.bc-colophon { margin-top: clamp(36px, 6vw, 72px); padding-top: 18px; border-top: 1px solid var(--color-line); display: flex; flex-direction: column; gap: 6px; color: var(--color-mute); } /* left-aligned and stacked: the fixed progress strip owns the bottom-right corner */
+.bc-colophon p { margin: 0; max-width: 60ch; }
+@media (max-width: 860px) {
+  .bc-grid { grid-template-columns: 1fr; }
+  .bc-btns { max-width: none; }
+  .bc-btns .btn { min-height: 48px; }
+  .bc-note { transform: rotate(-1deg); max-width: none; }
+}
+@media (max-width: 720px) {
+  /* Dela Gothic sets CONTINUE? at ~7.8 em wide; 56px needs 436px, a 390px phone has 358px. */
+  .bc-title { font-size: clamp(36px, 11vw, 56px); }
+}
+
+/* The drifting strip passes BEHIND the paper panels so the papers and posts stay readable while it crosses. */
+#extras .bstrip { z-index: 0; }
+#extras .paper, #extras .anime-tv, #extras table, #extras .posts, #extras .chapter-head { position: relative; z-index: 1; }

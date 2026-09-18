@@ -1,0 +1,130 @@
+/* ============================================================================
+   11 / CONTINUE? · Contact, and the drawn terminal.
+   Tokens and primitives from globals.css only. Nothing here moves on its own:
+   the video loops under its printed layers; everything else answers input.
+   A game the visitor started (play <name>) redraws one <pre> frame in place;
+   the LED and the pad are states, not animations.
+   ========================================================================== */
+
+/* ---------- Section ---------- */
+.ct { min-height: 100vh; min-height: 100svh; scroll-margin-top: 60px; padding-bottom: calc(clamp(56px, 8vw, 96px) + 72px); } /* the colophon clears the fixed progress strip */
+.ct > .wrap { width: 100%; min-width: 0; max-width: min(1180px, 100%); }
+.ct-head { justify-content: space-between; align-items: flex-end; margin-bottom: 6px; }
+.ct-plain { font-family: var(--font-body); font-weight: 400; letter-spacing: 0; text-transform: none; font-size: 14px; color: var(--color-paper); opacity: 0.85; }
+.ct-hand { margin: 0; font-family: var(--font-hand); font-size: clamp(18px, 1.6vw, 23px); line-height: 1.1; color: var(--color-yellow); transform: rotate(-2deg); text-shadow: 2px 2px 0 var(--color-ink); }
+/* Dela Gothic sets CONTINUE? at about 7.8 em: 11vw capped at 140px keeps it on one line inside the wrap. */
+.ct-title { margin: 0; font-size: clamp(56px, 11vw, 140px); color: var(--color-paper); white-space: nowrap; }
+.ct-sub { margin: 6px 0 clamp(24px, 3vw, 40px); display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 10px; }
+
+/* ---------- YES · Contact, and the console ---------- */
+.ct-grid { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: clamp(20px, 3vw, 40px); align-items: start; }
+.ct-yes { position: relative; padding: 18px 20px 20px; }
+.ct-yes .ct-hanko { position: absolute; right: 18px; top: 12px; }
+.ct-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px; }
+.ct-btns .btn { justify-content: space-between; min-height: 52px; padding: 12px 16px; font-size: 15px; }
+.ct-btns .btn::after { content: "→"; font-weight: 400; }
+.ct-btns .ct-cv::after { content: "↓"; }
+.ct-mail { grid-column: 1 / -1; text-transform: none; word-break: break-all; }
+.ct-mirror { margin: 14px 0 0; color: #6A665E; }
+.ct-mirror a { color: var(--color-shu-deep); text-decoration: none; display: inline-flex; align-items: center; min-height: 32px; }
+.ct-mirror a:hover { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 3px; }
+.ct-console { border: 2px solid var(--color-paper); background: rgba(14, 15, 20, 0.6); padding: 18px 20px; display: flex; flex-direction: column; gap: 14px; }
+.ct-console-label { margin: 0; color: var(--color-yellow); }
+.ct-console dd { color: var(--color-paper); }
+
+/* ---------- The terminal: a paper-bordered CRT ---------- */
+.ct-term { position: relative; margin-top: clamp(28px, 4vw, 48px); background: var(--color-paper); color: var(--color-ink); border: 3px solid var(--color-ink); box-shadow: 8px 8px 0 var(--color-ink); padding: 12px 14px 14px; }
+.ct-screw { position: absolute; width: 11px; height: 11px; border: 2px solid var(--color-ink); border-radius: 50%; background: var(--color-paper); }
+.ct-screw::after { content: ""; position: absolute; left: 1px; right: 1px; top: 50%; height: 2px; margin-top: -1px; background: var(--color-ink); transform: rotate(-35deg); }
+.ct-screw:nth-of-type(1) { left: 4px; top: 4px; }
+.ct-screw:nth-of-type(2) { right: 4px; top: 4px; }
+.ct-screw:nth-of-type(3) { left: 4px; bottom: 4px; }
+.ct-screw:nth-of-type(4) { right: 4px; bottom: 4px; }
+.ct-term-bar { display: flex; align-items: center; gap: 10px; padding: 2px 8px 10px; }
+.ct-led { width: 10px; height: 10px; background: var(--color-shu); border: 2px solid var(--color-ink); flex: none; }
+.ct-term.is-game .ct-led { background: var(--color-yellow); } /* a cartridge is in */
+.ct-term-name { font-family: var(--font-meta); font-weight: 700; font-size: 13px; letter-spacing: 0.04em; }
+.ct-keys { margin: 0 0 0 auto; color: #6A665E; }
+
+.ct-screen { position: relative; display: flex; flex-direction: column; height: clamp(360px, 48vh, 520px); background: var(--color-night); color: var(--color-paper); border: 3px solid var(--color-ink); border-radius: 18px / 14px; padding: 12px 16px 10px; font-family: var(--font-meta); font-size: 14px; line-height: 1.45; box-shadow: inset 0 0 0 1px rgba(243, 241, 235, 0.08), inset 0 0 70px rgba(0, 0, 0, 0.65); cursor: text; }
+.ct-screen::after { content: ""; position: absolute; inset: 0; border-radius: inherit; background: linear-gradient(112deg, rgba(243, 241, 235, 0.07), transparent 38%); pointer-events: none; } /* the glass */
+.ct-screen:focus-within { border-color: var(--color-yellow); }
+
+.ct-log { flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--color-line) transparent; white-space: pre-wrap; overflow-wrap: anywhere; padding-right: 6px; }
+.ct-log:focus-visible { outline: 2px solid var(--color-yellow); outline-offset: 2px; }
+.ct-line { margin: 0; min-height: 1.45em; }
+.ct-l-in { color: var(--color-yellow); }
+.ct-l-out { color: var(--color-paper); }
+.ct-l-sys { color: var(--color-mute); }
+.ct-l-ok { color: var(--color-yellow); }
+.ct-l-err { color: var(--color-paper); border-left: 3px solid var(--color-shu); padding-left: 8px; }
+.ct-log a { color: var(--color-yellow); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.ct-log a:hover { background: var(--color-yellow); color: var(--color-ink); text-decoration: none; }
+/* A game frame: one block, fixed pitch, never wrapped; it scrolls sideways before it ever breaks a row. */
+.ct-frame { margin: 6px 0; font: inherit; font-size: 15px; line-height: 1.3; white-space: pre; overflow-x: auto; overflow-y: hidden; color: var(--color-paper); scrollbar-width: thin; }
+
+.ct-prompt { display: flex; align-items: center; margin-top: 6px; padding-top: 6px; border-top: 1px dashed var(--color-line); }
+.ct-ps1 { color: var(--color-yellow); white-space: pre; flex: none; cursor: text; }
+.ct-input { flex: 1; min-width: 0; background: transparent; border: 0; color: var(--color-paper); font: inherit; caret-color: var(--color-yellow); padding: 8px 0; margin: 0; outline: none; } /* the screen's border shows the focus */
+.ct-input::placeholder { color: var(--color-mute); opacity: 0.6; }
+
+/* ---------- The game pad, under the prompt while a game runs ---------- */
+.ct-pad { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding-top: 8px; }
+.ct-pad .ct-chip { text-transform: lowercase; letter-spacing: 0.04em; }
+.ct-pad-k { display: none; min-width: 44px; min-height: 44px; padding: 0; justify-content: center; align-items: center; font-size: 18px; line-height: 1; } /* arrows: touch only, the keys do it elsewhere */
+.ct-pad-q { min-height: 36px; }
+.ct-pad-hint { color: var(--color-mute); }
+.ct-chips-note { margin: 0; color: #6A665E; min-height: 40px; display: inline-flex; align-items: center; }
+
+.ct-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 12px 2px 0; }
+.ct-chip { font-family: var(--font-meta); font-weight: 700; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; background: var(--color-paper); color: var(--color-ink); border: 2px solid var(--color-ink); box-shadow: 3px 3px 0 var(--color-ink); padding: 0 12px; min-height: 40px; cursor: pointer; transition: transform 0.05s, box-shadow 0.05s; }
+.ct-chip:hover { background: var(--color-yellow); }
+.ct-chip:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--color-ink); }
+.ct-model { margin-left: auto; display: inline-flex; align-items: center; gap: 10px; color: #6A665E; }
+.ct-grille { display: inline-block; width: 56px; height: 12px; background: repeating-linear-gradient(90deg, var(--color-ink) 0 2px, transparent 2px 6px); }
+
+/* ---------- The wrong-way note and the colophon ---------- */
+.ct-foot { display: grid; grid-template-columns: minmax(0, 340px) minmax(0, 1fr); gap: clamp(24px, 4vw, 56px); align-items: end; margin-top: clamp(36px, 5vw, 64px); }
+.ct-stop { padding: 14px 18px; transform: rotate(-2deg); font-size: 14px; line-height: 1.45; }
+.ct-stop-word { display: block; font-family: var(--font-display); font-size: 24px; line-height: 1; color: var(--color-shu); margin-bottom: 6px; }
+.ct-stop p { margin: 0; }
+.ct-colophon { display: flex; flex-direction: column; gap: 6px; color: var(--color-mute); padding-top: 14px; border-top: 1px solid var(--color-line); }
+.ct-colophon p { margin: 0; max-width: 60ch; }
+
+/* ---------- Touch: keys are not on the screen, chips are ---------- */
+@media (pointer: coarse) {
+  .ct-keys { display: none; }
+  .ct-chip { min-height: 44px; }
+  .ct-pad-k { display: inline-flex; }
+  .ct-pad-q { min-height: 44px; min-width: 64px; justify-content: center; }
+  .ct-pad-hint { display: none; }
+  .ct-log a { position: relative; }
+  .ct-log a::after { content: ""; position: absolute; left: 0; right: 0; top: -11px; bottom: -11px; }
+}
+
+/* ---------- Tablet and phone ---------- */
+@media (max-width: 900px) {
+  .ct-keys { display: none; }
+}
+@media (max-width: 720px) {
+  .ct { padding-bottom: clamp(56px, 8vw, 96px); } /* the phone strip is a bottom bar; body already pads for it */
+  .ct-grid, .ct-foot { grid-template-columns: 1fr; }
+  .ct-btns { grid-template-columns: 1fr; }
+  .ct-btns .btn { min-height: 48px; }
+  .ct-mail { font-size: 14px; letter-spacing: 0.02em; word-break: normal; overflow-wrap: anywhere; } /* the full address on one line at 390px */
+  .ct-hand { font-size: 17px; }
+  .ct-screen { height: 60svh; font-size: 15px; padding: 10px 12px 8px; }
+  .ct-input { font-size: 16px; min-height: 44px; } /* under 16px iOS zooms the page on focus; a thumb needs 44px */
+  .ct-mirror a { min-height: 44px; }
+  .ct-term { padding: 10px 10px 12px; }
+  .ct-chip { min-height: 44px; }
+  .ct-model { display: none; }
+  .ct-stop { transform: rotate(-1deg); }
+}
+@media (max-width: 480px) {
+  .ct-title { font-size: 11.5vw; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ct-chip { transition: none; }
+}

@@ -1,51 +1,38 @@
-"use client";
-import { useState } from "react";
-import { useKonami } from "@/hooks/useKonami";
-import { PowBurst } from "@/components/effects/PowBurst";
-import { TitleScreen } from "@/components/sections/TitleScreen";
-import { CharacterSelect } from "@/components/sections/CharacterSelect";
-import { CampaignLog } from "@/components/sections/CampaignLog";
-import { BossFights } from "@/components/sections/BossFights";
-import { PowerUpShop } from "@/components/sections/PowerUpShop";
-import { Archives } from "@/components/sections/Archives";
-import { Transmissions } from "@/components/sections/Transmissions";
-import { SideQuests } from "@/components/sections/SideQuests";
-import { Inventory } from "@/components/sections/Inventory";
-import { TrophyRoom } from "@/components/sections/TrophyRoom";
-import { ContinueScreen } from "@/components/sections/ContinueScreen";
-import { StageTransition } from "@/components/fx/StageTransition";
+import { Cover } from "@/components/cover/Cover";
+import { Select } from "@/components/chapters/Select";
+import { Campaign } from "@/components/chapters/Campaign";
+import { BossFights } from "@/components/chapters/BossFights";
+import { Shop } from "@/components/chapters/Shop";
+import { Arcade } from "@/components/chapters/Arcade";
+import { SideQuests } from "@/components/chapters/SideQuests";
+import { Archives } from "@/components/chapters/Archives";
+import { Transmissions } from "@/components/chapters/Transmissions";
+import { Inventory } from "@/components/chapters/Inventory";
+import { TrophyRoom } from "@/components/chapters/TrophyRoom";
+import { Continue } from "@/components/chapters/Continue";
+import { Fox } from "@/components/companion/Fox";
+import { Cursor } from "@/components/chrome/Cursor";
+import { PageFx } from "@/components/motion/PageFx";
 
+/* The issue, front to back: twelve chapters, every one read from src/content/resume.ts. */
 export default function Home() {
-  const [unlocked, setUnlocked] = useState(false);
-  useKonami(() => setUnlocked(true));
   return (
     <main>
-      <TitleScreen />
-      <StageTransition index={0} next="Character Select" />
-      <CharacterSelect />
-      <StageTransition index={1} next="Campaign Log" />
-      <CampaignLog />
-      <StageTransition index={2} next="Boss Fights" />
+      <PageFx />
+      <Cover />
+      <Select />
+      <Campaign />
       <BossFights />
-      <StageTransition index={3} next="Power-Up Shop" />
-      <PowerUpShop />
-      <StageTransition index={4} next="Archives" />
-      <Archives />
-      <StageTransition index={5} next="Transmissions" />
-      <Transmissions />
-      <StageTransition index={6} next="Side Quests" />
+      <Shop />
+      <Arcade />
       <SideQuests />
-      <StageTransition index={7} next="Inventory" />
+      <Archives />
+      <Transmissions />
       <Inventory />
-      <StageTransition index={8} next="Trophy Room" />
       <TrophyRoom />
-      <StageTransition index={9} next="Continue?" />
-      <ContinueScreen />
-      {unlocked && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[90]">
-          <PowBurst word="1UP! KONAMI UNLOCKED" />
-        </div>
-      )}
+      <Continue />
+      <Fox />
+      <Cursor />
     </main>
   );
 }

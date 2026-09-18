@@ -1,14 +1,14 @@
 import Link from "next/link";
-import { ArcadeButton } from "@/components/ui/ArcadeButton";
+import { VideoPanel } from "@/components/print/VideoPanel";
 
 export default function NotFound() {
   return (
-    <main className="grid min-h-screen place-items-center text-center px-4">
-      <div>
-        <h1 className="font-comic text-6xl md:text-8xl text-pop-red [-webkit-text-stroke:2px_black]">GAME OVER</h1>
-        <p className="font-pixel text-xs text-pop-yellow mt-4">404 — STAGE NOT FOUND</p>
-        <div className="mt-8"><Link href="/"><ArcadeButton color="green">▶ CONTINUE</ArcadeButton></Link></div>
+    <VideoPanel video="hell" priority dim={0.6} className="chapter" ariaLabel="Page not found" style={{ minHeight: "100svh", display: "grid", placeItems: "center" }}>
+      <div style={{ textAlign: "center", padding: 24 }}>
+        <p className="mono-label" style={{ color: "var(--color-yellow)" }}>404 — stage not found</p>
+        <h1 className="display stroke" style={{ fontSize: "clamp(56px, 12vw, 160px)", margin: "8px 0 20px" }}>GAME OVER</h1>
+        <Link className="btn btn-red" href="/">▶ Continue</Link>
       </div>
-    </main>
+    </VideoPanel>
   );
 }

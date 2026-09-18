@@ -1,0 +1,126 @@
+/* ============================================================================
+   The companion: Patch, the fox. Bottom-left post, above the safe area, never
+   under the progress strip (bottom-right on desktop, a full-width bar under
+   720 px). Everything here is transform and opacity. The only motion without
+   input is one blink every 5.6 s and the "z" while asleep; both stop under
+   prefers-reduced-motion. will-change exists only while the fox walks.
+   ========================================================================== */
+
+/* ---------- Post ---------- */
+.fox { position: fixed; left: 16px; bottom: calc(14px + env(safe-area-inset-bottom, 0px)); z-index: 58; width: 112px; height: 98px; pointer-events: none; --face: 1; }
+.fox.is-moving { will-change: transform; }
+
+.fox-btn { pointer-events: auto; display: block; width: 112px; height: 98px; padding: 0; margin: 0; border: 0; background: transparent; cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+.fox-btn:focus-visible { outline: 3px solid var(--color-yellow); outline-offset: 4px; }
+.fox-stage { width: 100%; height: 100%; transform-origin: 50% 72%; }
+.fox-sprite { display: block; width: 100%; height: 100%; overflow: visible; transform: scaleX(var(--face)); }
+.fox-sprite-head { display: none; }
+
+/* SVG transform origins are in user units (transform-box: view-box). */
+.fox-body { transform-origin: 64px 98px; }
+.fox-head { transform-origin: 64px 58px; transition: transform 0.4s; }
+.fox-ear-a { transform-origin: 50px 22px; transition: transform 0.4s; }
+.fox-ear-b { transform-origin: 74px 19px; transition: transform 0.4s; }
+.fox-tail { transform-origin: 46px 88px; transition: transform 0.4s; }
+.fox-leg-a { transform-origin: 68px 74px; }
+.fox-leg-b { transform-origin: 82px 74px; }
+.fox-scarf-tail { transform-origin: 48px 66px; }
+.fox-pupils { transition: transform 0.08s linear; }
+.fox-lid-a { transform-origin: 60px 31px; }
+.fox-lid-b { transform-origin: 80px 33px; }
+
+/* ---------- The one idle motion: a blink every 5.6 s, 130 ms long ---------- */
+.fox-lid { transform: scaleY(0); animation: fox-blink 5.6s step-end infinite; }
+.fox-lid-b { animation-delay: 0.02s; }
+@keyframes fox-blink { 0%, 95.5% { transform: scaleY(0); } 95.6%, 97.8% { transform: scaleY(1); } 97.9%, 100% { transform: scaleY(0); } }
+
+/* ---------- Hover: three wags ---------- */
+.fox-btn:hover .fox-tail, .fox-btn:focus-visible .fox-tail { animation: fox-wag 0.26s ease-in-out 3; }
+@keyframes fox-wag { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(-16deg); } }
+
+/* ---------- Walk cycle: four frames, 150 ms each ---------- */
+@keyframes fox-leg-a { 0% { transform: rotate(-18deg); } 25% { transform: rotate(0); } 50% { transform: rotate(18deg); } 75% { transform: rotate(0); } 100% { transform: rotate(-18deg); } }
+@keyframes fox-leg-b { 0% { transform: rotate(18deg); } 25% { transform: rotate(0); } 50% { transform: rotate(-18deg); } 75% { transform: rotate(0); } 100% { transform: rotate(18deg); } }
+@keyframes fox-bob { 0% { transform: translateY(0); } 25% { transform: translateY(-4px); } 50% { transform: translateY(0); } 75% { transform: translateY(-4px); } 100% { transform: translateY(0); } }
+@keyframes fox-flutter { 0% { transform: rotate(0); } 25% { transform: rotate(-14deg); } 50% { transform: rotate(0); } 75% { transform: rotate(-14deg); } 100% { transform: rotate(0); } }
+.fox.is-walking .fox-leg-a { animation: fox-leg-a 0.6s step-end infinite; }
+.fox.is-walking .fox-leg-b { animation: fox-leg-b 0.6s step-end infinite; }
+.fox.is-walking .fox-body { animation: fox-bob 0.6s step-end infinite; }
+.fox.is-walking .fox-scarf-tail { animation: fox-flutter 0.6s step-end infinite; }
+/* The chapter trot: the same four frames, once. Declared after .is-walking so it wins and ends. */
+.fox.is-trot .fox-leg-a { animation: fox-leg-a 0.6s step-end 1; }
+.fox.is-trot .fox-leg-b { animation: fox-leg-b 0.6s step-end 1; }
+.fox.is-trot .fox-body { animation: fox-bob 0.6s step-end 1; }
+.fox.is-trot .fox-scarf-tail { animation: fox-flutter 0.6s step-end 1; }
+
+/* ---------- Trick: a backflip in eight frames, then a star ---------- */
+@keyframes fox-flip { 0% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-34px) rotate(-180deg); } 100% { transform: translateY(0) rotate(-360deg); } }
+.fox.is-trick .fox-stage { animation: fox-flip 0.5s steps(4, end) 1; }
+.fox-star { position: absolute; left: 92px; bottom: 92px; pointer-events: none; font-family: var(--font-sfx); font-size: 30px; line-height: 1; color: var(--color-yellow); -webkit-text-stroke: 2px var(--color-ink); paint-order: stroke fill; transform-origin: 50% 100%; animation: fox-pop 0.7s ease-out both; }
+@keyframes fox-pop { 0% { transform: scale(0) rotate(-20deg); opacity: 1; } 40% { transform: scale(1.25) rotate(8deg); opacity: 1; } 70% { transform: scale(1) rotate(0); opacity: 1; } 100% { transform: scale(1) translateY(-14px); opacity: 0; } }
+
+/* ---------- Asleep: curled, lids down, one "z" drifting ---------- */
+.fox.is-asleep .fox-lid { animation: none; transform: scaleY(1); }
+.fox.is-asleep .fox-head { transform: translate(-4px, 6px) rotate(8deg); }
+.fox.is-asleep .fox-ear-a { transform: rotate(-22deg); }
+.fox.is-asleep .fox-ear-b { transform: rotate(18deg); }
+.fox.is-asleep .fox-tail { transform: rotate(-34deg); }
+.fox-zz { position: absolute; left: 90px; bottom: 74px; pointer-events: none; font-family: var(--font-sfx); font-size: 22px; line-height: 1; color: #fff; -webkit-text-stroke: 1.5px var(--color-ink); paint-order: stroke fill; letter-spacing: 0.04em; }
+.fox-zz i { display: inline-block; font-style: normal; font-size: 0.75em; animation: fox-z 1.8s ease-in-out infinite; }
+@keyframes fox-z { 0% { transform: translate(0, 0); opacity: 1; } 100% { transform: translate(6px, -12px); opacity: 0; } }
+.fox[data-facing="-1"] .fox-zz { left: 8px; }
+
+/* ---------- Konami: a dance and six OK hanko that fall ---------- */
+@keyframes fox-dance { 0%, 100% { transform: translateY(0) rotate(0); } 12.5%, 62.5% { transform: translateY(-12px) rotate(-10deg); } 25%, 75% { transform: translateY(0) rotate(0); } 37.5%, 87.5% { transform: translateY(-12px) rotate(10deg); } }
+.fox.is-dance .fox-stage { animation: fox-dance 1.2s ease-in-out 1; }
+.fox-hanko { position: absolute; left: var(--x); bottom: 70px; pointer-events: none; animation: fox-fall 1.3s cubic-bezier(0.3, 0.6, 0.7, 1) both; animation-delay: var(--d); }
+.fox-hanko .stamp { background: var(--color-paper); }
+@keyframes fox-fall { 0% { transform: translateY(-80px) rotate(var(--r0)); opacity: 0; } 12% { opacity: 1; } 100% { transform: translateY(46px) rotate(var(--r1)); opacity: 0; } }
+
+/* ---------- The speech balloon ---------- */
+.fox-bubble { position: absolute; left: 76px; bottom: 100px; width: max-content; max-width: min(300px, calc(100vw - 110px)); padding: 9px 12px 12px; background: var(--color-paper); color: var(--color-ink); border: 3px solid var(--color-ink); box-shadow: 4px 4px 0 var(--color-ink); pointer-events: none; transform-origin: 12px 100%; transform: scale(0.6) translateY(8px); opacity: 0; visibility: hidden; transition: transform 0.18s cubic-bezier(0.2, 0.9, 0.3, 1.25), opacity 0.14s, visibility 0s linear 0.18s; }
+.fox-bubble.is-open { transform: none; opacity: 1; visibility: visible; transition-delay: 0s; }
+.fox-bubble::before, .fox-bubble::after { content: ""; position: absolute; clip-path: polygon(0 0, 100% 0, 28% 100%); }
+.fox-bubble::before { left: 10px; bottom: -15px; width: 24px; height: 16px; background: var(--color-ink); }
+.fox-bubble::after { left: 13px; bottom: -8px; width: 16px; height: 10px; background: var(--color-paper); }
+.fox-bubble-name { display: block; font-family: var(--font-hand); font-size: 19px; line-height: 1; color: var(--color-shu); margin: 0 0 4px; }
+.fox-bubble-tag { display: block; font-family: var(--font-meta); font-weight: 700; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #6A665E; }
+.fox-bubble-line { margin: 4px 0 0; font-family: var(--font-body); font-size: 15px; line-height: 1.35; }
+/* When the fox has walked to the right side, the balloon opens to its left. */
+.fox.is-far .fox-bubble { left: auto; right: 0; transform-origin: calc(100% - 12px) 100%; }
+.fox.is-far .fox-bubble::before, .fox.is-far .fox-bubble::after { left: auto; clip-path: polygon(0 0, 100% 0, 72% 100%); }
+.fox.is-far .fox-bubble::before { right: 10px; }
+.fox.is-far .fox-bubble::after { right: 13px; }
+
+/* ---------- The command ring ---------- */
+.fox-ring { position: absolute; left: 0; bottom: 0; width: 0; height: 0; --mir: 1; }
+/* One transform per state (translate centres the chip on its point, scaleX un-mirrors it when the ring is flipped, scale is the pop). Never split into transform + scale: the minifier folds them. */
+.fox-cmd { position: absolute; left: var(--x); bottom: var(--y); transform: translate(-50%, 50%) scaleX(var(--mir)) scale(0.4); min-width: 44px; min-height: 44px; justify-content: center; opacity: 0; visibility: hidden; pointer-events: none; transition: transform 0.2s cubic-bezier(0.2, 0.9, 0.3, 1.35), opacity 0.14s, visibility 0s linear 0.2s; transition-delay: calc(var(--i) * 35ms), calc(var(--i) * 35ms), 0.2s; }
+.fox-ring.is-open .fox-cmd { transform: translate(-50%, 50%) scaleX(var(--mir)) scale(1); opacity: 1; visibility: visible; pointer-events: auto; transition-delay: calc(var(--i) * 35ms), calc(var(--i) * 35ms), 0s; }
+.fox-cmd[aria-pressed="true"] { background: var(--color-yellow); }
+.fox-cmd[disabled] { cursor: not-allowed; color: var(--color-tone); box-shadow: none; }
+.fox-cmd:focus-visible { outline: 3px solid var(--color-yellow); outline-offset: 3px; }
+.fox-ring-hint { position: absolute; left: 124px; bottom: 6px; white-space: nowrap; padding: 3px 8px; color: var(--color-mute); background: rgba(14, 15, 20, 0.88); border: 1px solid var(--color-line); opacity: 0; visibility: hidden; transition: opacity 0.2s, visibility 0s linear 0.2s; pointer-events: none; }
+.fox-ring.is-open .fox-ring-hint { opacity: 1; visibility: visible; transition-delay: 0s; }
+.fox.is-far .fox-ring { left: 112px; transform: scaleX(-1); --mir: -1; }
+.fox.is-far .fox-ring-hint { transform: scaleX(-1); left: auto; right: 124px; }
+
+/* ---------- Under 720 px: a 44 px head that only speaks when tapped ---------- */
+@media (max-width: 719px) {
+  .fox { width: 44px; height: 44px; bottom: calc(62px + env(safe-area-inset-bottom, 0px)); left: 12px; }
+  .fox-btn { width: 44px; height: 44px; }
+  .fox-sprite-full { display: none; }
+  .fox-sprite-head { display: block; }
+  .fox-bubble { left: -2px; bottom: 54px; max-width: calc(100vw - 28px); transform-origin: 14px 100%; }
+  .fox-ring, .fox-star, .fox-zz, .fox-hanko { display: none; }
+}
+
+/* ---------- Reduced motion: a still drawing, the balloon text only ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .fox *, .fox *::before, .fox *::after { animation: none !important; transition: none !important; }
+  .fox-lid { transform: scaleY(0); }
+  .fox-cmd { transform: translate(-50%, 50%) scaleX(var(--mir)); }
+  .fox-bubble { transform: none; }
+  .fox-star, .fox-hanko { display: none; }
+  .fox-zz i { opacity: 1; transform: none; }
+}

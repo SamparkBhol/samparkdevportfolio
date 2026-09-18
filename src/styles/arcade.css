@@ -1,0 +1,121 @@
+/* ===========================================================================
+   05 / ARCADE — the INSERT COIN sign and the cartridge ring on its shelf.
+   Tokens and primitives come from globals.css; this file only lays out the objects.
+   3D rule: nothing between .ring-stage (the perspective) and the cartridges carries
+   overflow, filter, opacity < 1, mask or clip-path. The shelf is a 2D sibling of the ring.
+   ========================================================================= */
+
+.arcade { scroll-margin-top: 60px; }
+.arcade .btn-sm { min-height: 44px; }
+.arcade .arc-head { align-items: flex-end; }
+.arcade .chapter-title { margin: 0; }
+.arc-head-meta { display: flex; flex-direction: column; gap: 6px; padding-bottom: 6px; }
+.arc-plain { color: var(--color-paper); }
+
+/* ---------- The marquee row: the sign and the one line ---------- */
+.arc-marquee { display: flex; flex-wrap: wrap; align-items: center; gap: 18px clamp(20px, 4vw, 48px); margin-bottom: clamp(8px, 2vw, 20px); }
+.arc-sign { position: relative; display: inline-flex; flex-direction: column; align-items: stretch; background: var(--color-yellow); color: var(--color-ink); padding: 0 18px; transform: rotate(-2deg); }
+.arc-sign-text { display: block; padding: 4px 6px 6px; font-size: clamp(26px, 3.2vw, 40px); letter-spacing: 0.02em; text-align: center; white-space: nowrap; }
+.arc-bulbs { display: block; height: 12px; background-image: radial-gradient(circle at 6px 6px, var(--color-paper) 3px, var(--color-ink) 3.6px, var(--color-ink) 4.6px, transparent 5.2px); background-size: 14px 12px; background-repeat: repeat-x; background-position: 0 0; }
+.arc-bulbs-top { margin-top: 5px; }
+.arc-bulbs-bottom { margin-bottom: 5px; background-position: 7px 0; }
+.arc-line { margin: 0; font-family: var(--font-display); font-size: clamp(18px, 2.2vw, 28px); line-height: 1.1; color: var(--color-paper); -webkit-text-stroke: 1px var(--color-ink); paint-order: stroke fill; text-shadow: 3px 3px 0 var(--color-ink); }
+
+/* ---------- Cartridge ring ---------- */
+.ring-block { --cw: 140px; --ch: 200px; --ct: 16px; --R: 240px; }
+.ring-stage {
+  position: relative; height: 400px; perspective: 1100px; perspective-origin: 50% 40%;
+  touch-action: pan-y; cursor: grab; user-select: none; -webkit-user-select: none; outline-offset: 6px;
+}
+.ring-stage[data-dragging="true"] { cursor: grabbing; }
+.ring-stage[data-dragging="true"] .cart { cursor: grabbing; }
+.ring {
+  position: absolute; left: 50%; top: 50%; width: var(--cw); height: var(--ch);
+  margin: calc(var(--ch) / -2 - 10px) 0 0 calc(var(--cw) / -2);
+  transform-style: preserve-3d; transform: rotateY(var(--ry, 0deg));
+}
+.ring.is-easing { transition: transform 0.5s cubic-bezier(0.2, 0.7, 0.2, 1); }
+.cart {
+  position: absolute; inset: 0; width: var(--cw); height: var(--ch); padding: 0; border: 0; background: transparent; color: var(--color-paper);
+  transform-style: preserve-3d; transform: rotateY(calc(var(--i) * (360deg / var(--n)))) translateZ(var(--R)); cursor: pointer; text-align: left;
+}
+.cart:focus-visible { outline: 3px solid var(--color-yellow); outline-offset: 5px; }
+.cart-face { position: absolute; inset: 0; display: flex; flex-direction: column; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.cart-front { transform: translateZ(calc(var(--ct) / 2)); background: var(--color-ink); border: 3px solid var(--color-line); border-radius: 6px 6px 3px 3px; padding: 0 10px 8px; }
+.cart-notch { display: block; height: 8px; width: 56%; margin: 0 auto 8px; background: var(--color-line); border-radius: 0 0 5px 5px; }
+.cart-label { position: relative; flex: 1; display: flex; flex-direction: column; gap: 3px; background: var(--accent, var(--color-yellow)); color: var(--color-ink); border: 2px solid var(--color-ink); padding: 6px 8px 8px; }
+.cart-gloss { position: absolute; left: 6px; right: 6px; top: 4px; height: 2px; background: rgba(255, 255, 255, 0.55); pointer-events: none; }
+.cart-art { display: block; width: 100%; height: auto; aspect-ratio: 80 / 48; margin: 2px 0 4px; }
+.cart-art .a-paper { fill: var(--color-paper); stroke: var(--color-ink); stroke-width: 3; stroke-linejoin: round; }
+.cart-art .a-ink { fill: var(--color-ink); stroke: none; }
+.cart-art .a-shu { fill: var(--color-shu); stroke: var(--color-ink); stroke-width: 3; stroke-linejoin: round; }
+.cart-art .a-yellow { fill: var(--color-yellow); stroke: var(--color-ink); stroke-width: 2.5; }
+.cart-art .a-line { fill: none; stroke: var(--color-ink); stroke-width: 3; stroke-linecap: round; }
+.cart-art .a-curve { fill: none; stroke: var(--color-ink); stroke-width: 3.5; stroke-linecap: round; }
+.cart-art .a-wrench { fill: none; stroke: var(--color-paper); stroke-width: 3; stroke-linecap: round; }
+.cart-art .a-text { font-family: var(--font-meta); font-weight: 700; font-size: 20px; fill: var(--color-ink); }
+.cart-art .a-on-ink { fill: var(--color-paper); }
+.cart-name { font-size: 14px; line-height: 1.1; overflow-wrap: anywhere; }
+.cart-sub { font-size: 12px; line-height: 1.25; }
+.cart-meta { display: flex; justify-content: space-between; margin-top: 8px; font-size: 12px; color: var(--color-paper); }
+.cart-meta span:last-child { text-transform: none; }
+.cart:hover .cart-front { border-color: var(--color-yellow); }
+.cart-side { top: 0; bottom: 0; left: 50%; right: auto; width: var(--ct); margin-left: calc(var(--ct) / -2); border: 0; background: linear-gradient(to bottom, #0A0A0D 0 20%, var(--accent, var(--color-yellow)) 20% 62%, #0A0A0D 62% 100%); }
+.cart-right { transform: rotateY(90deg) translateZ(calc(var(--cw) / 2)); }
+.cart-left { transform: rotateY(-90deg) translateZ(calc(var(--cw) / 2)); }
+.cart-back { transform: rotateY(180deg) translateZ(calc(var(--ct) / 2)); background: #16171C; border: 3px solid var(--color-line); border-radius: 6px 6px 3px 3px; align-items: center; justify-content: center; gap: 8px; color: var(--color-mute); background-image: repeating-linear-gradient(0deg, transparent 0 14px, rgba(255, 255, 255, 0.04) 14px 16px); }
+.cart-back-name { font-family: var(--font-meta); font-size: 12px; text-align: center; padding: 0 8px; overflow-wrap: anywhere; }
+
+/* the shelf: a plank under the ring with one gloss line where the cartridges reflect */
+.ring-shelf { position: absolute; left: 50%; bottom: 46px; width: min(100%, calc(var(--R) * 2 + var(--cw) + 40px)); height: 26px; transform: translateX(-50%); background: var(--color-ink); border: 3px solid var(--color-line); border-top-color: var(--color-mute); pointer-events: none; }
+.ring-shelf::after { content: ""; position: absolute; left: 0; right: 0; bottom: -10px; height: 10px; background: #08080B; border-inline: 3px solid var(--color-line); }
+.ring-shelf-line { position: absolute; left: 10%; right: 10%; top: 3px; height: 2px; background: linear-gradient(90deg, transparent, rgba(243, 241, 235, 0.55) 30%, rgba(243, 241, 235, 0.55) 70%, transparent); }
+
+.ring-help { margin: 8px 0 0; text-align: center; color: var(--color-mute); }
+/* Phones and touch: the two cartridges at the back of the ring are edge-on, so the ring also turns by two 44 px buttons. */
+.ring-nav { display: none; justify-content: center; gap: 10px; margin: 12px 0 0; }
+.ring-nav-btn { min-height: 44px; min-width: 44px; padding-inline: 18px; }
+@media (max-width: 720px), (pointer: coarse) { .ring-nav { display: flex; } }
+.ring-card { position: relative; max-width: 600px; margin: 22px auto 0; padding: 0 20px 20px; animation: ring-page 0.4s ease-out both; }
+@keyframes ring-page { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.ring-card-band { height: 12px; margin: 0 -20px 14px; background: var(--accent, var(--color-yellow)); border-bottom: 3px solid var(--color-ink); }
+.ring-card-head { display: grid; grid-template-columns: 120px 1fr; gap: 16px; align-items: start; margin-bottom: 14px; }
+.ring-card-head .cart-art { width: 120px; margin: 0; background: var(--accent, var(--color-yellow)); border: 2px solid var(--color-ink); padding: 6px; box-sizing: border-box; }
+.ring-card-meta { margin: 0; color: #6A665E; }
+.ring-card-name { margin: 2px 0 4px; font-size: clamp(22px, 3vw, 34px); overflow-wrap: anywhere; }
+.ring-card-sub { margin: 0; font-size: 16px; }
+.ring-install { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 14px; }
+.ring-code { font-family: var(--font-meta); font-weight: 700; font-size: 15px; background: var(--color-night); color: var(--color-paper); padding: 8px 12px; border: 2px solid var(--color-ink); }
+.ring-copied { display: inline-block; min-width: 96px; min-height: 24px; }
+.ring-card-btns { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+
+/* ---------- Tablet ---------- */
+@media (max-width: 1000px) {
+  .ring-block { --R: 210px; }
+}
+
+/* ---------- Phone ---------- */
+@media (max-width: 720px) {
+  .arc-marquee { gap: 14px; }
+  .arc-sign { transform: rotate(-1.5deg); padding: 0 12px; }
+  .arc-line { font-size: 20px; }
+  .ring-block { --cw: 104px; --ch: 156px; --ct: 12px; --R: 132px; }
+  .ring-stage { height: 320px; perspective: 800px; }
+  .ring { margin-top: calc(var(--ch) / -2 - 6px); }
+  .cart-front { padding: 0 6px 6px; }
+  .cart-label { padding: 5px 6px 6px; }
+  .cart-art { margin: 0 0 2px; }
+  .cart-name { font-size: 12px; }
+  .cart-meta { margin-top: 6px; }
+  .ring-shelf { bottom: 34px; height: 20px; }
+  .ring-card { margin-top: 16px; padding: 0 16px 16px; }
+  .ring-card-band { margin: 0 -16px 12px; }
+  .ring-card-head { grid-template-columns: 96px 1fr; gap: 12px; }
+  .ring-card-head .cart-art { width: 96px; }
+}
+
+/* ---------- Reduced motion: every end state visible, nothing eases ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .ring.is-easing { transition: none !important; }
+  .ring-card { animation: none !important; }
+}

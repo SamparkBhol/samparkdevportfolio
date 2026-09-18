@@ -1,0 +1,110 @@
+/* ---------- 02 / THE JOB · trace strip and spread ---------- */
+.job { scroll-margin-top: 60px; }
+.job .job-head { align-items: flex-end; }
+.job .chapter-title { margin: 0; }
+.job-head-meta { display: flex; flex-direction: column; gap: 6px; padding-bottom: 6px; }
+.job-plain { color: var(--color-paper); }
+
+/* the trace panel */
+.job-trace { position: relative; padding: 14px 16px 16px; margin-bottom: clamp(24px, 4vw, 40px); }
+.job-trace-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 16px; margin-bottom: 10px; }
+.job-trace-hint { color: var(--color-shu); }
+.job-scroll { position: relative; }
+.job-stage { position: relative; }
+.job-svg { display: block; width: 100%; height: auto; aspect-ratio: 1200 / 360; overflow: visible; }
+.job-svg:focus-visible { outline: 3px solid var(--color-yellow); outline-offset: 4px; }
+.job-svg .ink, .job-thumb .ink { stroke: var(--color-ink); stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; }
+.job-svg .ink2, .job-thumb .ink2 { stroke: var(--color-ink); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.job-svg .f-paper, .job-thumb .f-paper { fill: var(--color-paper); }
+.job-svg .f-ink, .job-thumb .f-ink { fill: var(--color-ink); }
+.job-svg .f-shu, .job-thumb .f-shu { fill: var(--color-shu); }
+.job-svg .f-yellow, .job-thumb .f-yellow { fill: var(--color-yellow); }
+.job-svg .f-cel, .job-thumb .f-cel { fill: var(--color-cel); }
+.job-svg .f-none, .job-thumb .f-none { fill: none; }
+.job-svg text { font-family: var(--font-meta); font-weight: 700; font-size: 14px; letter-spacing: 0.02em; fill: var(--color-ink); text-anchor: middle; }
+.job-outline > * { stroke: var(--color-ink); stroke-width: 6; stroke-linejoin: round; }
+.job-part { cursor: pointer; outline: none; }
+.job-hit-area { fill: transparent; stroke: transparent; stroke-width: 2; pointer-events: all; }
+.job-part:hover .job-hit-area { stroke: var(--color-cel); stroke-dasharray: 6 4; }
+.job-part:focus-visible .job-hit-area { stroke: var(--color-yellow); stroke-width: 4; stroke-dasharray: none; }
+.job-bubble { pointer-events: none; }
+.job-drawer { transition: transform 166ms steps(2, end); }
+.job-drawer.out { transform: translateX(-34px); }
+
+/* words and stamps printed over the strip */
+.job-over { position: absolute; transform: translate(-50%, -50%); pointer-events: none; z-index: 2; }
+.job-hanko { animation: job-slam 166ms steps(2, end) both; }
+@keyframes job-slam {
+  0% { transform: translate(-50%, -50%) translate(-10px, 8px) scale(1.3); }
+  50% { transform: translate(-50%, -50%) translate(6px, -5px) scale(1.08); }
+  100% { transform: translate(-50%, -50%); }
+}
+
+/* controls */
+.job-controls { display: grid; grid-template-columns: auto 1fr; gap: 10px 20px; align-items: center; margin-top: 14px; }
+.job-send { white-space: nowrap; }
+.job-timeline { display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: center; min-width: 0; }
+.job-timeline input { appearance: none; -webkit-appearance: none; width: 100%; height: 44px; margin: 0; background: transparent; cursor: ew-resize; }
+.job-timeline input:focus-visible { outline: 3px solid var(--color-yellow); outline-offset: 2px; }
+.job-timeline input::-webkit-slider-runnable-track { height: 6px; background: var(--color-ink); }
+.job-timeline input::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 30px; height: 30px; margin-top: -12px; background: var(--color-yellow); border: 3px solid var(--color-ink); box-shadow: 3px 3px 0 var(--color-ink); cursor: grab; }
+.job-timeline input::-moz-range-track { height: 6px; background: var(--color-ink); }
+.job-timeline input::-moz-range-thumb { width: 24px; height: 24px; border-radius: 0; background: var(--color-yellow); border: 3px solid var(--color-ink); box-shadow: 3px 3px 0 var(--color-ink); cursor: grab; }
+.job-status { grid-column: 1 / -1; margin: 0; font-size: 13px; }
+.job-log-wrap { margin-top: 10px; }
+.job-log { margin: 0; padding: 10px 14px 10px 36px; background: var(--color-ink); color: var(--color-paper); font-family: var(--font-meta); font-size: 13px; line-height: 1.6; min-height: 44px; }
+.job-log li::marker { font-weight: 700; color: var(--color-yellow); }
+.job-log-empty { padding-left: 14px; color: var(--color-mute); }
+
+/* the spread */
+.job-spread { display: grid; gap: 12px; }
+.job-title-page { position: relative; }
+.job-title-band { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 16px; padding: 10px 16px; background: var(--color-ink); color: var(--color-paper); }
+.job-title-body { position: relative; padding: clamp(18px, 3vw, 32px) 150px clamp(16px, 2.5vw, 24px) 16px; }
+.job-org { margin: 0; font-size: clamp(48px, 8vw, 120px); text-transform: uppercase; line-height: 0.9; }
+.job-meta { margin: 10px 0 0; font-family: var(--font-meta); font-weight: 700; font-size: 14px; letter-spacing: 0.04em; }
+.job-now { position: absolute; top: 18px; right: 22px; }
+.job-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 12px; }
+.job-panel { min-width: 0; }
+.span-3 { grid-column: span 3; }
+.span-4 { grid-column: span 4; }
+.span-5 { grid-column: span 5; }
+.span-7 { grid-column: span 7; }
+.span-12 { grid-column: span 12; }
+.job-panel-body.has-numeral { padding-bottom: 56px; }
+.job-text { margin: 0 0 8px; }
+.job-tags { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.job-tags li { font-family: var(--font-meta); font-weight: 700; font-size: 12px; letter-spacing: 0.04em; line-height: 1.4; padding: 1px 7px; border: 2px solid var(--color-ink); background: #fff; }
+.job-hit { outline: 4px solid var(--color-yellow); outline-offset: 4px; }
+.job-role-line { margin-top: clamp(20px, 4vw, 36px); display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 16px; }
+.job-role-org { margin: 0; font-family: var(--font-display); font-weight: 400; font-size: clamp(26px, 3.6vw, 44px); line-height: 1; text-transform: uppercase; color: var(--color-paper); -webkit-text-stroke: 1.5px var(--color-ink); paint-order: stroke fill; text-shadow: 4px 4px 0 var(--color-ink); }
+.job-role-sub { margin: 0; background: var(--color-ink); color: var(--color-paper); padding: 5px 10px; }
+.job-earlier { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.job-role-meta { margin: 0 0 2px; font-family: var(--font-meta); font-weight: 700; font-size: 14px; }
+.job-role-when { margin: 0 0 8px; font-family: var(--font-meta); font-size: 13px; }
+
+/* thumbnails */
+.job-thumb { display: block; width: 120px; height: 80px; }
+.job-thumb text { font-family: var(--font-meta); font-weight: 700; font-size: 12px; fill: var(--color-ink); }
+.job-thumb-btn { display: block; padding: 0; border: 0; background: none; cursor: pointer; }
+.job-thumb-btn:focus-visible { outline: 3px solid var(--color-shu); outline-offset: 2px; }
+
+/* widths */
+@media (max-width: 1000px) {
+  .job-grid > .span-3, .job-grid > .span-4, .job-grid > .span-5 { grid-column: span 6; }
+  .job-grid > .span-7 { grid-column: span 12; }
+  .job-earlier { grid-template-columns: 1fr; }
+}
+@media (max-width: 720px) {
+  .job-scroll { overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; }
+  .job-stage { width: 1040px; }
+  .job-controls { grid-template-columns: 1fr; }
+  .job-grid > .job-panel { grid-column: span 12; }
+  .job-title-body { padding-right: 16px; }
+  .job-now { position: static; display: inline-block; margin-top: 14px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .job-drawer { transition: none; }
+  .job-hanko { animation: none; }
+}

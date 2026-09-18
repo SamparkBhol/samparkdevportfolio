@@ -1,0 +1,97 @@
+/* ===========================================================================
+   04 / POWER-UP SHOP — a shop screen: the pixel sign, the cat at the counter,
+   two menu windows (night with paper double borders, the inverse of the paper
+   panels everywhere else). Tokens and primitives come from globals.css.
+   Nothing moves on its own: the pointer moves under keys or a click.
+   ========================================================================= */
+
+.shop { scroll-margin-top: 60px; }
+.shop .btn-sm { min-height: 44px; }
+.shop .shop-head { align-items: flex-end; }
+.shop .chapter-title { margin: 0; }
+.shop-head-meta { display: flex; flex-direction: column; gap: 6px; padding-bottom: 6px; }
+.shop-plain { color: var(--color-paper); }
+
+/* ---------- The shop front: the sign, the cat, the greeting ---------- */
+.shop-front { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 18px clamp(20px, 3vw, 36px); margin-bottom: clamp(18px, 3vw, 28px); }
+.shop-sign { position: relative; display: inline-flex; padding: 14px 22px 12px; background: var(--color-yellow); color: var(--color-ink); transform: rotate(-1.5deg); }
+.shop-sign-px { display: block; }
+.shop-sign-nail { position: absolute; top: 5px; left: 6px; width: 6px; height: 6px; background: var(--color-ink); }
+.shop-sign-nail-r { left: auto; right: 6px; }
+.shop-counter { display: flex; align-items: flex-end; gap: 14px; flex: 1 1 320px; min-width: 0; }
+.shop-cat { display: block; flex: 0 0 auto; }
+.shop-greet { position: relative; margin: 0 0 14px; max-width: 34ch; padding: 10px 14px; font-family: var(--font-hand); font-size: clamp(17px, 1.5vw, 20px); line-height: 1.25; box-shadow: 4px 4px 0 var(--color-ink); }
+.shop-greet-tail { position: absolute; left: -14px; bottom: 12px; width: 0; height: 0; border-top: 10px solid transparent; border-bottom: 10px solid transparent; border-right: 14px solid var(--color-ink); }
+.shop-greet-tail::after { content: ""; position: absolute; left: 4px; top: -7px; width: 0; height: 0; border-top: 7px solid transparent; border-bottom: 7px solid transparent; border-right: 10px solid var(--color-paper); }
+
+/* ---------- Menu windows ---------- */
+.shop-menu { display: grid; grid-template-columns: minmax(280px, 5fr) 7fr; gap: 18px; align-items: start; }
+.shop-win { position: relative; background: var(--color-night); color: var(--color-paper); border: 3px solid var(--color-paper); border-radius: 6px; padding: 14px 16px 16px; box-shadow: 6px 6px 0 var(--color-ink); }
+.shop-win::before { content: ""; position: absolute; inset: 4px; border: 2px solid var(--color-paper); border-radius: 3px; pointer-events: none; opacity: 0.85; }
+.shop-win-title { position: relative; display: flex; justify-content: space-between; gap: 12px; margin: 0 0 10px; padding: 0 2px 8px; border-bottom: 2px dashed var(--color-line); color: var(--color-yellow); }
+.shop-win-title span:last-child { color: var(--color-mute); text-align: right; overflow-wrap: anywhere; }
+
+/* the item list */
+.shop-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.shop-row { position: relative; display: grid; grid-template-columns: 30px 1fr; grid-template-areas: "cur name" "cur meta"; column-gap: 8px; row-gap: 4px; align-items: center; width: 100%; min-height: 56px; padding: 8px 10px 8px 6px; border: 2px solid transparent; background: transparent; color: var(--color-paper); text-align: left; cursor: pointer; }
+.shop-row:hover { border-color: var(--color-line); }
+.shop-row[data-on="true"] { background: var(--color-paper); color: var(--color-ink); border-color: var(--color-paper); }
+.shop-row:focus-visible { outline: 3px solid var(--color-yellow); outline-offset: 2px; }
+.shop-row-cursor { grid-area: cur; display: flex; align-items: center; justify-content: center; align-self: center; width: 30px; height: 24px; }
+.shop-coin { display: block; }
+.shop-row-name { grid-area: name; font-family: var(--font-meta); font-weight: 700; font-size: 17px; line-height: 1.15; overflow-wrap: anywhere; }
+.shop-row-meta { grid-area: meta; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
+.shop-chip { display: inline-block; padding: 1px 6px; border: 2px solid currentColor; font-size: 12px; line-height: 1.3; }
+.shop-row[data-on="true"] .shop-chip { border-color: var(--color-ink); }
+.shop-price { position: relative; display: inline-flex; align-items: center; gap: 6px; padding: 1px 8px 1px 6px; background: var(--color-yellow); color: var(--color-ink); border: 2px solid var(--color-ink); font-size: 12px; line-height: 1.3; clip-path: polygon(0 50%, 9px 0, 100% 0, 100% 100%, 9px 100%); padding-left: 14px; }
+.shop-price-hole { width: 5px; height: 5px; border-radius: 50%; background: var(--color-ink); }
+.shop-help { margin: 12px 0 0; color: var(--color-mute); }
+
+/* the sheet */
+.shop-sheet-win { animation: shop-blip 0.16s steps(2, end) both; }
+@keyframes shop-blip { from { opacity: 0; } to { opacity: 1; } }
+.shop-sheet { position: relative; display: grid; gap: 12px; }
+.shop-sheet-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+.shop-sheet-name { margin: 0; font-size: clamp(22px, 2.6vw, 34px); color: var(--color-paper); overflow-wrap: anywhere; }
+.shop-chip-lg { font-size: 12px; padding: 2px 8px; }
+.shop-price-lg { font-size: 12px; padding-block: 3px; }
+.shop-desc { margin: 0; font-size: clamp(15px, 1.3vw, 17px); line-height: 1.45; max-width: 58ch; }
+.shop-tags { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.shop-tag { padding: 2px 8px; border: 2px solid var(--color-line); color: var(--color-mute); font-size: 12px; }
+.shop-spec { display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px; margin: 0; padding: 10px 0; border-block: 2px dashed var(--color-line); font-size: 14px; }
+.shop-spec > div { display: contents; }
+.shop-spec dt { color: var(--color-mute); align-self: baseline; }
+.shop-spec dd { margin: 0; font-family: var(--font-meta); font-weight: 700; }
+.shop-checked { font-weight: 400; color: var(--color-mute); }
+.shop-install { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.shop-code { flex: 1 1 200px; min-width: 0; font-family: var(--font-meta); font-weight: 700; font-size: 15px; background: var(--color-paper); color: var(--color-ink); padding: 9px 12px; border: 3px solid var(--color-paper); overflow-wrap: anywhere; }
+.shop-prompt { color: var(--color-shu); }
+.shop-copy { background: var(--color-yellow); }
+.shop-copied { display: inline-block; min-width: 100px; min-height: 26px; }
+.shop-sheet-btns { display: flex; flex-wrap: wrap; gap: 10px; }
+
+/* ---------- Tablet ---------- */
+@media (max-width: 1000px) {
+  .shop-menu { grid-template-columns: minmax(260px, 2fr) 3fr; }
+}
+
+/* ---------- Phone: the front stacks, the windows stack ---------- */
+@media (max-width: 720px) {
+  .shop-front { gap: 14px; }
+  .shop-sign { padding: 10px 14px 8px; }
+  .shop-sign-px { width: 120px; height: auto; }
+  .shop-counter { align-items: flex-end; gap: 10px; }
+  .shop-cat { width: 64px; height: auto; }
+  .shop-greet { font-size: 16px; padding: 8px 10px; margin-bottom: 8px; }
+  .shop-menu { grid-template-columns: 1fr; gap: 14px; }
+  .shop-win { padding: 12px 12px 14px; box-shadow: 4px 4px 0 var(--color-ink); }
+  .shop-row { min-height: 52px; }
+  .shop-spec { grid-template-columns: 1fr; gap: 2px 0; }
+  .shop-spec dt { margin-top: 6px; }
+  .shop-spec > div:first-child dt { margin-top: 0; }
+}
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .shop-sheet-win { animation: none !important; }
+}
