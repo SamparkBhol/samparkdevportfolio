@@ -102,25 +102,6 @@ npm run test:e2e   # smoke (Playwright)
 npm run build      # production build
 npm run typecheck  # tsc --noEmit
 ```
-
-**Edit content:** everything lives in `src/content/portfolio.ts` (typed by `src/content/types.ts`) —
-swap text / links / sprites there, no component edits needed. Pixel art → `public/sprites/`,
-chiptune SFX → `public/sfx/` (sound off by default; toggle in the HUD).
-
-| Section | Screen | Section | Screen |
-|---|---|---|---|
-| Home | Title Screen (3D dragon + war) | Research | Archives (blackletter) |
-| About | Character Select | Blogs | Transmissions (live mini-games) |
-| Experience | Campaign Log | Volunteer | Side Quests |
-| Projects | Boss Fights | Skills | Skill Binder |
-| NPM Packages | Power-Up Shop | Certifications | Achievements (anime TV) |
-| | | Contact | Continue? (terminal) |
-
-**Deploy (Vercel):** push → import → auto-detected (Next.js) → deploy. No env vars required.
-
-**Easter eggs:** Konami code (↑↑↓↓←→←→ B A), a hidden 5-fragment lore Codex, a playable
-terminal (`help`, `play guess` / `rps` / `typing`, `lore`), a section-scoped dagger cursor.
-
 </details>
 
 <div align="center">
